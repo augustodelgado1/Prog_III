@@ -13,10 +13,13 @@ pasajeros.
 Crear un método de instancia llamado AgregarPasajero, en el caso que no exista en la lista, se
 agregará (utilizar Equals). Además tener en cuenta la capacidad del vuelo. El valor de retorno de
 este método indicará si se agregó o no.
+
 Agregar un método de instancia llamado MostrarVuelo, que mostrará la información de un vuelo.
+
 Crear el método de clase “Add” para que permita sumar dos vuelos. El valor devuelto deberá ser de
 tipo numérico, y representará el valor recaudado por los vuelos. Tener en cuenta que si un pasajero
 es Plus, se le hará un descuento del 20% en el precio del vuelo.
+
 Crear el método de clase “Remove”, que permite quitar un pasajero de un vuelo, siempre y cuando
 el pasajero esté en dicho vuelo, caso contrario, informarlo. El método retornará un objeto de tipo
 Vuelo. -->
@@ -42,6 +45,75 @@ class Vuelo
         $this->_precio = $_precio;
         $this->_listaDePasajeros = $_listaDePasajeros;
         $this->_cantMaxima = $_cantMaxima;
+    }
+
+//     Agregar un método getter, que devuelva en una cadena de caracteres toda la información de un
+// vuelo: fecha, empresa, precio, cantidad máxima de pasajeros, y toda la información de todos los
+// pasajeros.
+
+    public function GetInfoVuelo() {
+
+        $data = "<br> Fecha: $this->_fecha
+        <br> Empresa : $this->_empresa
+        <br> Precio: $this->_precio
+        <br> Cantidad máxima de pasajeros : $this->_cantMaxima";
+    
+        if(count($this->_listaDePasajeros) > 0)
+        {
+            $data = "<br> Los Pasajeros Del Avion Son:<br>";
+
+            foreach($this->_listaDePasajeros as $unPasajero)
+            {
+                $data .= $unPasajero->GetInfoPasajero();
+            }
+        }
+
+
+        return $data;
+
+    }
+
+    private function ObtenerCantidadDePasajeros() {
+
+        return count($this->_listaDePasajeros);
+    }
+
+//     Crear un método de instancia llamado AgregarPasajero, en el caso que no exista en la lista, se
+// agregará (utilizar Equals). Además tener en cuenta la capacidad del vuelo. El valor de retorno de
+// este método indicará si se agregó o no.
+
+    public function Equals($unPasajero) 
+    {
+        $estado = false;
+
+        if($unPasajero != null )
+        {
+            $estado = in_array($unPasajero,$this->_listaDePasajeros);
+        }
+
+        return $estado;
+    }
+
+    public function AgregarPasajero($unPasajero) {
+
+        $estado = false;
+
+        if($unPasajero != null && $this->_cantMaxima < $this->ObtenerCantidadDePasajeros()
+        && !$this->Equals($unPasajero))
+        {
+            $estado = true;
+           array_push($this->_listaDePasajeros,$unPasajero);
+        }
+        
+        return $estado;
+    }
+
+
+    // Agregar un método de instancia llamado MostrarVuelo, que mostrará la información de un vuelo.
+
+    public function MostrarVuelo($unPasajero)
+    {
+        echo $this->GetInfoVuelo(); 
     }
 
 // //     Crear el método de instancia “Equals” 

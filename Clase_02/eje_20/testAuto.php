@@ -92,14 +92,13 @@ if($garage[0]->Equals($garage[3]))
 }
 
 
-
 // Utilizar el método de clase “MostrarAuto” para mostrar cada los objetos impares (1, 3, 5)
 
 echo "<br><br>Autos Impares:<br>";
 
 for ($i = 0; $i <= $len; $i++) {
 
-    if(($i+1) %2 != 0)
+    if($i %2 != 0)
     {
         echo "<br> Auto [$i] Datos: <br>  ".Auto::MostrarAuto($garage[$i]);
     }

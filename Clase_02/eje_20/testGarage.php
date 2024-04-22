@@ -8,34 +8,27 @@ Probar el buen funcionamiento de todos los métodos. -->
 Require_once "Garage.php";
 
 $garage = new Garage("Carito",9000);
-$marcas = array("Toyota","Ford","Duna");
-$colores =  array("Rojo","Azul","Amarillo","Violeta");
-$lenMarcas = count($marcas)-1;
-$lenColores = count($colores)-1;
-$otroAuto = new Auto("Toyota","Rojo");
+
+$unAuto = new Auto("Toyota","Rojo");
+$garage->Add($unAuto);
+$garage->Add(new Auto("Toyota","Marron"));
+
+//  Crear dos objetos “Auto” de la misma marca, mismo color y distinto precio.
+$garage->Add(new Auto ("Toyota","Gris",700));
+
+$otroAuto = new Auto("Toyota","Amarillo");
 
 $garage->Add($otroAuto );
 
-do{
-
-    $unAuto = new Auto($marcas[rand(0,$lenMarcas)],$colores[rand(0,$lenColores)],rand(700,10000));
-    
-    if($garage->Add($unAuto) == false)
-    {
-        echo"<br>Este auto no se pudo aniadir<br>";
-        var_dump($unAuto);
-    }
-
-}while($garage->getCantidadDeAutosGuardados() < 5);
+echo $garage->MostrarGarage();
 
 echo"<br><br>Aniado un elemento repetido<br>";
 
 var_dump($unAuto);
 
-if($garage->Add($unAuto) == false)
+if(!$garage->Add($unAuto))
 {
     echo"<br>Este auto no se pudo aniadir<br>";
-    
 }
 
 
@@ -43,39 +36,38 @@ echo"<br><br>Compruebo si esta<br>";
 
 var_dump($otroAuto);
 
-if($garage->Equals($otroAuto ) == true)
+if($garage->Equals($otroAuto ))
 {
     echo"<br>Este auto esta en la lista<br>";
     
 }
 
 echo"<br><br>Compruebo si esta<br>";
-
-var_dump(null);
-
-if($garage->Equals(null ) == false)
-{
-    echo"<br>Este auto no esta en la lista<br>";
-}
-
-
-echo"<br><br>Elimino uno<br>";
+$otroAuto = new Auto("Ford","Violeta");
 var_dump($otroAuto);
 
-if($garage->Remove($otroAuto) == true)
+if(!$garage->Equals($otroAuto))
 {
-    echo"<br><br>Se elimino el elemento <br>";
+    echo"<br>Este auto no esta en la lista<br><br>;";
+}
+
+
+echo"<br><br>Elimino el primer elemento uno<br>";
+var_dump($unAuto);
+
+if($garage->Remove($unAuto))
+{
+    echo"<br><br>Se elimino el elemento y Asi quedo la lista <br>".$garage->MostrarGarage()."<br>";
 }
 
 
 echo"<br><br>Elimino uno<br>";
 
-var_dump(null);
+var_dump($otroAuto );
 
-if($garage->Remove(null ) == false)
+if(!$garage->Remove($otroAuto))
 {
     echo"<br><br>No Se Pudo eliminar el elemento <br>";
-    
 }
 
 

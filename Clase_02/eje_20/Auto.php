@@ -64,7 +64,10 @@ class Auto
 
     public function AgregarImpuestos($impuestoAgregado)
     {
-        $this->_precio += $impuestoAgregado;
+        if($impuestoAgregado > 0)
+        {
+            $this->_precio += $impuestoAgregado;
+        }
     }
 
 // //     Realizar un método de clase llamado “MostrarAuto”, que 

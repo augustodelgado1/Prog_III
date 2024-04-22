@@ -53,7 +53,7 @@ class Garage
 
         if($this->_autos != null)
         {
-            $data .= "Los Autos del garage son<br><br>";
+            $data .= "<br>Los Autos del garage son<br><br>";
 
             foreach($this->_autos as $unAuto )
             {
