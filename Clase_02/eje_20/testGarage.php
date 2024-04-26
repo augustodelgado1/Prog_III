@@ -58,6 +58,8 @@ var_dump($unAuto);
 if($garage->Remove($unAuto))
 {
     echo"<br><br>Se elimino el elemento y Asi quedo la lista <br>".$garage->MostrarGarage()."<br>";
+
+   
 }
 
 

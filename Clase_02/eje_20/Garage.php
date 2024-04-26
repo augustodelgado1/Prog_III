@@ -60,6 +60,8 @@ class Garage
                 $data .= "Auto [$contador]<br>".Auto::MostrarAuto($unAuto)."<br>";
                 $contador++;
             }
+
+            // var_dump($this->_autos);
         }
 
         return $data;
