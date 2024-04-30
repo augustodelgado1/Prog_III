@@ -6,7 +6,12 @@ crear un objeto y utilizar sus métodos para poder hacer el alta,
 guardando los datos en usuarios.csv.
 retorna si se pudo agregar o no.
 Cada usuario se agrega en un renglón diferente al anterior.
-Hacer los métodos necesarios en la clase usuario -->
+Hacer los métodos necesarios en la clase usuario
+
+
+Alumno : Augusto Delgado 
+Div : A332
+-->
 
 <?php
 
@@ -28,9 +33,9 @@ class Usuario{
     {
         $unUsuario = null;
 
-        if(Usuario::ValidarNombre($nombre) !== false 
-        && Usuario::ValidarMail($mail) !== false 
-        && Usuario::ValidarClave($clave) !== false)
+        if(isset($nombre)
+        && isset($mail)  
+        && isset($clave) )
         {
             $unUsuario = new Usuario($nombre, $mail, $clave);
         }
@@ -38,23 +43,6 @@ class Usuario{
 
         return $unUsuario;
     }
-
-    private static function ValidarClave($clave)
-    {
-        return isset($clave) && strlen($clave) >= 8;
-    }
-    
-    private static function ValidarMail($mail)
-    {
-        return isset($mail) && strlen($mail) >= 10;
-    }
-    
-
-    private static function ValidarNombre($nombre)
-    {
-        return isset($nombre) ;
-    }
-    
 
     public static function EscribirUnUsuarioPorCsv($unUsuario,$nombreDeArchivo)
     {

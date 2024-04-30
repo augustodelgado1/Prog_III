@@ -12,10 +12,45 @@ Retorna los datos que contiene ese array en una lista
 <li>Tea</li>
 <li>Milk</li>
 </ul>
-Hacer los métodos necesarios en la clase usuario -->
+Hacer los métodos necesarios en la clase usuario 
+
+
+
+Alumno : Augusto Delgado 
+Div : A332
+-->
 
 <?php
 
+require_once "./Usuario.php";
 
+$unUsuario = null ;
+$mensaje = "No Se Pudo Leer el archivo";
+$nombreDeArchivo = "usuarios.csv";
+$listaDeUsuario = array(new Usuario("pepe","Julio@gmail.com","12345678"),new Usuario("juan","Jul@gmail.com","12345658"),
+                    new Usuario("Mario","Juju@gmail.com","laClaves"),new Usuario("james","james@gmail.com","Claveses"));
+
+    // var_dump($_GET["listado"]);
+
+    if(Usuario::EscribirArrayPorCsv($listaDeUsuario,$nombreDeArchivo ) !== false)
+    {
+        $mensaje = " Se Pudo Escribir el archivo";
+    }
+
+    if($_server["REQUEST_METHOD"] == "GET" && $_GET["listado"] == "usuarios")
+    {
+        echo $mensaje."<br><br>";
+
+        $listaDeUsuarios = Usuario::LeerCsv($nombreDeArchivo );
+
+        if(isset($listaDeUsuarios))
+        {
+            $mensaje = "Los Datos leidos en el archivo son<br>".Usuario::MostrarListaDeUsuarioEnHtml($listaDeUsuarios);
+        }else{
+            $mensaje = " No Se Pudo Leer el archivo";
+        }
+    }
+
+    echo $mensaje."<br><br>";
 
 ?>

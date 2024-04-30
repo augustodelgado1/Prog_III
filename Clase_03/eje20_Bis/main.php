@@ -6,7 +6,12 @@ crear un objeto y utilizar sus métodos para poder hacer el alta,
 guardando los datos en usuarios.csv.
 retorna si se pudo agregar o no.
 Cada usuario se agrega en un renglón diferente al anterior.
-Hacer los métodos necesarios en la clase usuario -->
+Hacer los métodos necesarios en la clase usuario 
+
+
+Alumno : Augusto Delgado 
+Div : A332
+-->
 
 <?php
 
@@ -15,7 +20,8 @@ $unUsuario = null ;
 $mensaje = "Parametros no validos";
 $nombreDeArchivo = "usuarios.csv";
 
-    if(isset($_POST["mail"]) && isset($_POST["nombre"]) && isset($_POST["clave"])) 
+    if($_server["REQUEST_METHOD"] == "POST" && 
+   isset($_POST["mail"]) && isset($_POST["nombre"]) && isset($_POST["clave"])) 
     {
         $unUsuario = Usuario::AltaDeUsuario($_POST["nombre"], $_POST["mail"],$_POST["clave"]);
         $mensaje = "Los datos ingresados no son validos";

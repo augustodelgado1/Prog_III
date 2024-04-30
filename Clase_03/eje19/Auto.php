@@ -50,8 +50,14 @@ Hacer los métodos necesarios en la clase Auto para poder leer el listado desde 
 autos.csv
 Se deben cargar los datos en un array de autos.
 
-Augusto Delgado
  -->
+
+ <!-- 
+
+Alumno : Augusto Delgado 
+Div : A332
+-->
+
 
  <?php
 
@@ -70,25 +76,100 @@ class Auto
         $this->_fecha = $_fecha;
     }
 
-    // public function __set($atributo, $valor)
-    // {
-        
-    //     if(!property_exists($this, $atributo))
-    //     {
-    //         $this->propiedades[$atributo] = $valor;
-    //     }
-    // }
 
-    // public function __get($atributo)
+
+    private static function CrearUnAuto($_marca,$_color, $_precio = 0, $_fecha = null)
+    {
+        $unAuto = null;
+
+        if(isset($_marca) && isset($_color) 
+        && isset($_precio) )
+        {
+            $unAuto = new Auto($_marca,$_color,$_precio,$_fecha);
+        }
+
+        return $unAuto;
+    }
+
+    // /    Crear un método de clase para poder hacer el alta de un Auto, guardando los datos en un archivo
+// autos.csv.
+    public static function AltaDeAuto($nombreDeArchivo,$_marca,$_color, $_precio = 0, $_fecha = null)
+    {
+        $estado = false;
+        $unAuto = null;
+
+        if(($unAuto = Auto::CrearUnAuto($_marca,$_color,$_precio,$_fecha)) !== null)
+        {
+            $estado =  $unAuto->EscribirUnAutos($nombreDeArchivo);
+        }
+
+        return $estado;
+    }
+
+    private function EscribirUnAutos($nombreDeArchivo)
+    {
+        $estado = false;
+        $unArchivo = fopen($nombreDeArchivo,"a+");
+
+        if(isset($unArchivo))
+        {
+            $estado = fputcsv($unArchivo,array($this->_marca,$this->_color,$this->_precio,$this->_fecha));
+            fclose($unArchivo);
+        }
+
+        return $estado;
+    }
+
+// Hacer los métodos necesarios en la clase Auto para poder leer el listado desde el archivo
+// autos.csv Se deben cargar los datos en un array de autos.
+
+    public static function LeerCsv($nombreDeArchivo)
+    {
+        $listaDeAutos  = null;
+         $unAuto  = null;
+        $unArchivo = fopen($nombreDeArchivo,"r");
+
+        if(isset($unArchivo)){
+
+            $listaDeAutos = [];
+    
+            while(($linea = fgetcsv($unArchivo)) !== false){
+
+                if(isset($linea) && ($unAuto = Auto::CrearUnAuto($linea[0],$linea[1], $linea[2], $linea[3])) !== null)
+                {
+                    array_push($listaDeAutos, $unAuto);
+                }
+            }
+
+            fclose($unArchivo);
+        }
+
+        return   $listaDeAutos ;
+    }
+
+    // public static function EscribirArrayDeAutos($listaDeAutos,$nombreDeArchivo)
     // {
-    //     $retorno = null;
-        
-    //     if(in_array($atributo, $this->_propiedades))
-    //     {
-    //         $retorno = $this->_propiedades[$atributo];
+    //     $estado = false;
+    //     $unArchivo = fopen($nombreDeArchivo,"w");
+
+    //     if(isset( $unArchivo) && isset( $listaDeAutos)){
+            
+    //         $estado = true;
+            
+    //         foreach($listaDeAutos as $unAuto ){
+
+    //             if(!$unAuto->EscribirUnAutos($unArchivo))
+    //             {
+    //                 $estado = false;
+    //                 break;
+    //             }
+    //         }
+
+           
+    //         fclose($unArchivo);
     //     }
 
-    //     return $retorno;
+    //     return $estado;
     // }
 
 
@@ -113,10 +194,10 @@ class Auto
         
         if($unAuto != null)
         {
-            $data = "Color :$unAuto->_color".PHP_EOL.
-            "Precio : $unAuto->_precio".PHP_EOL.
-            "Marca : $unAuto->_marca".PHP_EOL.
-            "Fecha : $unAuto->_fecha".PHP_EOL;
+            $data = "Color :$unAuto->_color"."<br>".
+            "Precio : $unAuto->_precio"."<br>".
+            "Marca : $unAuto->_marca"."<br>".
+            "Fecha : $unAuto->_fecha"."<br>";
         }
 
         return $data;
@@ -158,98 +239,7 @@ class Auto
    }
 
 
-//    Crear un método de clase para poder hacer el alta de un Auto, guardando los datos en un archivo
-// autos.csv.
 
-    public static function EscribirUnAuto($unAuto,$nombreDeArchivo)
-    {
-        return Auto::EscribirArrayDeAutos(array($unAuto),$nombreDeArchivo);
-    }
-
-// Hacer los métodos necesarios en la clase Auto para poder leer el listado desde el archivo
-// autos.csv Se deben cargar los datos en un array de autos.
-
-    public static function LeerCsv($nombreDeArchivo)
-    {
-        $listaDeAutos  = null;
-         $unAuto  = null;
-        $unArchivo = fopen($nombreDeArchivo,"r");
-
-        if(isset($unArchivo)){
-
-            $listaDeAutos = [];
-    
-            while(($unAuto = fgetcsv($unArchivo)) !== false){
-
-                if(isset($unAuto))
-                {
-                  
-                    array_push($listaDeAutos, new Auto($unAuto[0],$unAuto[1],$unAuto[2],$unAuto[3]));
-                }
-            }
-
-            fclose($unArchivo);
-        }
-
-        return   $listaDeAutos ;
-    }
-
-    // private static function Convert($datos)
-    // {
-    //     $unAuto  = null;
-
-    //     if(isset($datos) && Auto::VerificarAtributos($datos) !== false)
-    //     {
-    //         $unAuto  = new Auto($datos["marca"],$datos["color"],$datos["precio"],$datos["fecha"]);
-    //     }
-
-    //     return   $unAuto ;
-    // }
-
-    // private static function VerificarAtributos($datos)
-    // {
-    //     $estado = false;
-
-    //     if(isset($datos))
-    //     {
-    //         $estado = true;
-
-    //         foreach($datos as $key => $value)
-    //         {
-    //             if(!property_exists(__CLASS__, $key))
-    //             {
-    //                 $estado = false;
-    //                 break;
-    //             }
-    //         }
-    //     }
-
-    //     return   $estado ;
-    // }
-    public static function EscribirArrayDeAutos($listaDeAutos,$nombreDeArchivo)
-    {
-        $estado = false;
-        $unArchivo = fopen($nombreDeArchivo,"w");
-
-        if(isset( $unArchivo) && isset( $listaDeAutos)){
-            
-            $estado = true;
-            
-            foreach( $listaDeAutos as $unAuto ){
-
-                if(!fputcsv($unArchivo,array($unAuto->_marca,$unAuto->_color,$unAuto->_precio,$unAuto->_fecha)))
-                {
-                    $estado = false;
-                    break;
-                }
-            }
-
-           
-            fclose($unArchivo);
-        }
-
-        return $estado;
-    }
 
 
 }
