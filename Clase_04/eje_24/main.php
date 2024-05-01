@@ -16,5 +16,33 @@ Div : A332
 
 <?php
 
+require_once "C:/xampp/htdocs/ProgIII/Clase_04/eje_24/Usuario.php";
+
+$mensaje = "NO SE RECIBIERON DATOS";
+$unUsuario = null ;
+$nombreDeArchivo = "usuarios.json";
+
+    if(Usuario::EscribirArrayPorJson(array(new Usuario("pepe","Julio@gmail.com","12345678"),
+    new Usuario("mario","mario@gmail.com","12345678"),new Usuario("Pergolino","pergolino@gmail.com","12345678")),$nombreDeArchivo ) !== false)
+    {
+        $mensaje = " Se Pudo Escribir el archivo";
+    }
+
+    echo $mensaje."<br><br>";
+
+    if($_SERVER['REQUEST_METHOD'] == "GET" && $_GET["listado"] == "usuarios.json")
+    {
+        $listaDeUsuarios = Usuario::LeerJson($nombreDeArchivo,true);
+       
+        if(isset($listaDeUsuarios))
+        {
+            $mensaje = "Los Datos leidos en el archivo son<br>".Usuario::MostrarListaDeUsuarioEnHtml($listaDeUsuarios);
+        }else{
+            $mensaje = " No Se Pudo Leer el archivo";
+        }
+    }
+
+    echo $mensaje."<br><br>";
+
 
 ?>
