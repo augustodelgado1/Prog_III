@@ -18,6 +18,20 @@ Div : A332
 -->
 
 <?php
+require_once "Producto.php";
 
+$unProducto = null;
+$nombreDeArchivo = "Usuario.json";
+$listaDeProducto = array(new Producto("123456","Oreo","Gallatita",1,2100),new Producto("123457","Mellizas","Gallatita",1,1000)
+,new Producto("123458","Opera","Gallatita",1,500));
 
+$mensaje = "NO SE RECIBIERON DATOS";
+
+if($_SERVER['REQUEST_METHOD'] == "POST" 
+&& ($unProducto = Producto::ObtenerUnProductoPorArrayAsosiativo($_POST)) !== null) 
+{
+    $mensaje = $unProducto->EvaluarUnProducto($listaDeProducto,$nombreDeArchivo);
+}
+
+echo $mensaje;
 ?>

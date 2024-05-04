@@ -19,6 +19,8 @@ Div : A332
 
 <?php
 
+require_once "Venta.php";
+
 class Producto
 {
     private static $_id;
@@ -39,37 +41,37 @@ class Producto
         $this->_codigoDeBarra = $_codigoDeBarra;
     }
 
+    public function RealizarVenta($unIdDeUsuario,$cantidadDeItem)
+    {
+        $unaVenta = null;
+
+        if(isset($unIdDeUsuario) && $this->HayStock($cantidadDeItem) )
+        {
+            $unaVenta =  new Venta($unIdDeUsuario);
+            $unaVenta->AddProducto($this->_codigoDeBarra,$cantidadDeItem);
+        }
+
+        return $unaVenta;
+    }
+
+    public function HayStock($cantidadDeItem)
+    {
+        $estado = false;
+
+        if($this->_stock > 0 && $cantidadDeItem <= $this->_stock)
+        {
+            $this->_stock -=  $cantidadDeItem;
+            $estado = true; 
+        }
+
+        return $estado;
+    }
+
     private static function CrearIdAutoIncremental()
     {
-       
         return  rand(1,10.000);
     }
 
-//     Retorna un :
-// “Ingresado” si es un producto nuevo
-// “Actualizado” si ya existía y se actualiza el stock.
-// “no se pudo hacer“si no se pudo hacer
-    public function EvaluarUnProducto($listaDeProductos,$nombreDeArchivo)
-    {
-        $mensaje = "no se pudo hacer";
-
-        if(isset($listaDeProductos))
-        {
-            if($this->AgragarStock($listaDeProductos))
-            {
-                $mensaje = "“Actualizado”";
-                
-            }else{
-
-                if($this->EscribirUnProductoPorJson($nombreDeArchivo))
-                {
-                    $mensaje = "Ingresado";
-                }
-            }
-        }
-        
-        return $mensaje;
-    }
     public function BuscarUnProducto($listaDeProductos)
     {
        $retorno = false;
@@ -82,18 +84,25 @@ class Producto
        return $retorno;
     }
 
-    public function EscribirUnProductoPorJson($nombreDeArchivo)
+    public static function BuscarUnProductoPorCodigoDeBarra($listaDeProductos,$strCodigoDeBarra)
     {
-        $estado = false;
-        $unArchivo = fopen($nombreDeArchivo,"a+");
+        $unProductoABuscar = null;
 
-        if(isset($unArchivo) )
+        if(isset($listaDeProductos) && count($listaDeProductos) > 0)
         {
-            $estado = fwrite($unArchivo ,json_encode($this->ObternerDatos()));
-            fclose($unArchivo);
+            foreach($listaDeProductos as $unProducto)
+            {
+                if($unProducto->_codigoDeBarra == $strCodigoDeBarra)
+                {
+                    $unProductoABuscar = $unProducto;
+                   
+                    break;
+                }
+            }
+           
         }
 
-        return $estado;
+        return $unProductoABuscar;
     }
 
     private function AgragarStock($listaDeProductos)
@@ -108,22 +117,12 @@ class Producto
 
         return $estado;
     }
-    private function ObternerDatos() 
-    {
-        return array(
-            '_id' => self::$_id,
-            '_codigoDeBarra' => $this->_codigoDeBarra,
-            '_nombre' => $this->_nombre,
-            '_tipo' => $this->_tipo,
-            '_stock' => $this->_stock,
-            '_precio' => $this->_precio,
-        );
-    }
+    
 
     public static function EscribirArrayPorJson($listaDeUsuario,$nombreDeArchivo)
     {
         $estado = false;
-        $unArchivo = fopen($nombreDeArchivo,"w");
+        $unArchivo = fopen($nombreDeArchivo,"a+");
 
         if(isset($unArchivo) && isset($listaDeUsuario) && count($listaDeUsuario) > 0 &&
         ($listaStr = Producto::SerializarArrayDeProductoJson($listaDeUsuario)) !== null)
@@ -152,40 +151,16 @@ class Producto
         return $listaDeArrayAsosiativo;
     }
 
-    public static function ObtenerUnProductoPorArrayAsosiativo($unArrayAsosiativo)
+    private function ObternerDatos() 
     {
-        $unProducto = null;
-
-        if(Producto::ValidarKeys($unArrayAsosiativo) == true)
-        {
-            // echo "entro";
-            $unProducto = new Producto($unArrayAsosiativo['_codigoDeBarra'],$unArrayAsosiativo['_nombre'],
-            $unArrayAsosiativo['_tipo'], $unArrayAsosiativo['_stock'], $unArrayAsosiativo['_precio']);
-            // $unProducto::$_id = $unArrayAsosiativo['_id'];
-        }
-        
-        return $unProducto;
-    }
-
-    private static function ValidarKeys($unArrayAsosiativo)
-    {
-        $estado = false;
-
-        if(isset($unArrayAsosiativo) && count($unArrayAsosiativo) > 0)
-        {
-            $estado = true;
-            foreach($unArrayAsosiativo as $key => $value)
-            {
-                if(!property_exists(__CLASS__, $key))
-                {
-                    $estado = false;
-                    // echo'Es esta '. $key ;
-                    break;
-                }
-            }
-        }
-
-        return $estado;
+        return array(
+            '_id' => self::$_id,
+            '_codigoDeBarra' => $this->_codigoDeBarra,
+            '_nombre' => $this->_nombre,
+            '_tipo' => $this->_tipo,
+            '_stock' => $this->_stock,
+            '_precio' => $this->_precio,
+        );
     }
 
     

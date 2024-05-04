@@ -100,7 +100,7 @@ class Usuario{
     public static function EscribirArrayPorJson($listaDeUsuario,$nombreDeArchivo)
     {
         $estado = false;
-        $unArchivo = fopen($nombreDeArchivo,"a+");
+        $unArchivo = fopen($nombreDeArchivo,"w");
 
         if(isset($unArchivo) && isset($listaDeUsuario) && count($listaDeUsuario) > 0 &&
         ($listaStr = Usuario::SerializarArrayDeUsuarioJson($listaDeUsuario)) !== null)

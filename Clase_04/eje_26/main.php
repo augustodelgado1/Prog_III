@@ -19,5 +19,31 @@ Div : A332
 
 <?php
 
+require_once "Producto.php";
 
+$unProducto = null;
+$unUsuario = null;
+$unaVenta = null;
+$nombreDeArchivo = "Ventas.json";
+$listaDeProductos = array(new Producto("123456","Oreo","Gallatita",4,2100),new Producto("123457","Mellizas","Gallatita",7,1000)
+,new Producto("123458","Opera","Gallatita",4,500));
+$listaDeUsuarios = array(new Usuario("pepe","Julio@gmail.com","12345678"),
+new Usuario("mario","mario@gmail.com","12345678"),new Usuario("Pergolino","pergolino@gmail.com","12345678"));
+
+$mensaje = "No se recibieron datos";
+
+if(isset($_POST["_codigoDeBarra"]) && isset($_POST["_id"]) && isset($_POST["cantidadDeItems"]))
+{
+    $unProducto = Producto::BuscarUnProductoPorCodigoDeBarra($listaDeProductos ,$_POST["_codigoDeBarra"]);
+    $unUsuario  = Usuario::BuscarUnUsuarioPorId($listaDeUsuarios,$_POST["_id"]);
+    $mensaje = "no se pudo hacer"; 
+
+    if( isset( $unProducto) && isset( $unUsuario ) && ($unaVenta = $unProducto->RealizarVenta($_POST["_id"],$_POST["cantidadDeItems"])) !== null 
+    && $unaVenta->EscribirUnaVentaPorJson($nombreDeArchivo))
+    {
+        $mensaje = "venta realizada";
+    }
+}
+
+echo $mensaje;
 ?>
