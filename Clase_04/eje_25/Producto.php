@@ -126,9 +126,9 @@ class Producto
         $unArchivo = fopen($nombreDeArchivo,"w");
 
         if(isset($unArchivo) && isset($listaDeUsuario) && count($listaDeUsuario) > 0 &&
-        ($listaStr = Producto::SerializarArrayDeProductoJson($listaDeUsuario)) !== null)
+        ($listaDeArrayAsociativos = Producto::SerializarArrayDeProductoJson($listaDeUsuario)) !== null)
         {
-            $estado = fwrite($unArchivo ,json_encode($listaStr));
+            $estado = fwrite($unArchivo ,json_encode($listaDeArrayAsociativos));
             fclose($unArchivo);
         }
 
@@ -179,7 +179,6 @@ class Producto
                 if(!property_exists(__CLASS__, $key))
                 {
                     $estado = false;
-                    // echo'Es esta '. $key ;
                     break;
                 }
             }

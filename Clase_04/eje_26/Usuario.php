@@ -85,6 +85,11 @@ class Usuario{
 
         return $estado;
     }
+
+    public function SerializarUnUsuarioEnJson()
+    {
+        return json_encode($this->ObternerDatos());
+    }
 }
 
 

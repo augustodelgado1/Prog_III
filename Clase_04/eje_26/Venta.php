@@ -41,6 +41,8 @@ class Venta{
     {
         return  rand(1,10000);
     }
+
+    
     
     public function AddProducto($unCodigoDeBarra,$cantidadDeItem)
     {

@@ -54,6 +54,11 @@ class Producto
         return $unaVenta;
     }
 
+    public function SerializarUnProductoEnJson()
+    {
+        return json_encode($this->ObternerDatos());
+    }
+
     public function HayStock($cantidadDeItem)
     {
         $estado = false;
@@ -104,20 +109,6 @@ class Producto
 
         return $unProductoABuscar;
     }
-
-    private function AgragarStock($listaDeProductos)
-    {
-        $estado = false;
-
-        if(Producto::BuscarUnProducto($listaDeProductos) == true)
-        {
-            $this->_stock++;
-            $estado = true;
-        }
-
-        return $estado;
-    }
-    
 
     public static function EscribirArrayPorJson($listaDeUsuario,$nombreDeArchivo)
     {
