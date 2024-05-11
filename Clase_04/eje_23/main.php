@@ -8,7 +8,8 @@ guardando los datos en usuarios.json y subir la imagen al servidor en la carpeta
 Usuario/Fotos/.
 retorna si se pudo agregar o no.
 Cada usuario se agrega en un renglón diferente al anterior.
-Hacer los métodos necesarios en la clase usuario. -->
+Hacer los métodos necesarios en la clase usuario. 
+-->
 
 <!-- 
 Alumno : Augusto Delgado 
@@ -40,7 +41,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST' &&
 {
     $mensaje = "No se pudo dar de alta el usuario";
 
-    if( Usuario::AltaDeUsuarioPorJson($unUsuario,$nombreDeArchivo) !== false 
+    if( Usuario::EscribirArrayPorJson(array($unUsuario),$nombreDeArchivo) !== false 
     && $unUsuario->MoverFoto($_FILES['imagen']['tmp_name'],$carpetasArchivos,$_FILES['imagen']['name']) !== false )
     {
         $mensaje = "El Usuario Se subio perfectamente";

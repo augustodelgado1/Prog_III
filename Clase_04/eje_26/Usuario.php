@@ -72,19 +72,6 @@ class Usuario{
             'fechaDeRegistro' => self::$fechaDeRegistro
         );
     }
-    public function EscribirUnUsuarioPorJson($nombreDeArchivo)
-    {
-        $estado = false;
-        $unArchivo = fopen($nombreDeArchivo,"a+");
-
-        if(isset($unArchivo) )
-        {
-            $estado = fwrite($unArchivo ,json_encode($this->ObternerDatos()));
-            fclose($unArchivo);
-        }
-
-        return $estado;
-    }
 
     public function SerializarUnUsuarioEnJson()
     {

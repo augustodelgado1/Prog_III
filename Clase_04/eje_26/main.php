@@ -39,7 +39,7 @@ if(isset($_POST["_codigoDeBarra"]) && isset($_POST["_id"]) && isset($_POST["cant
     $mensaje = "no se pudo hacer"; 
 
     if( isset( $unProducto) && isset( $unUsuario ) && ($unaVenta = $unProducto->RealizarVenta($_POST["_id"],$_POST["cantidadDeItems"])) !== null 
-    && $unaVenta->EscribirUnaVentaPorJson($nombreDeArchivo))
+    && Venta::EscribirUnArrayDeVentaPorJson(array($unaVenta),$nombreDeArchivo))
     {
         $mensaje = "venta realizada";
     }

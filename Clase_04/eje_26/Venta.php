@@ -57,18 +57,36 @@ class Venta{
         return  $estado;
     }
 
-    public function EscribirUnaVentaPorJson($nombreDeArchivo)
+    public static function EscribirUnArrayDeVentaPorJson($listaDeVentas,$nombreDeArchivo)
     {
         $estado = false;
         $unArchivo = fopen($nombreDeArchivo,"a+");
 
-        if(isset($unArchivo) )
+        if(isset($unArchivo) && isset($listaDeVentas) &&
+        ($listaDeArrayAsosiativo = Venta::SerializarArrayDeVentasJson($listaDeVentas)) !== null)
         {
-            $estado = fwrite($unArchivo ,json_encode($this->ObternerDatos()));
+            $estado = fwrite($unArchivo ,json_encode($listaDeArrayAsosiativo));
             fclose($unArchivo);
         }
 
         return $estado;
+    }
+
+    private static function SerializarArrayDeVentasJson($listaDeVentas)
+    {
+        $listaDeArrayAsosiativo = null;
+
+        if( isset($listaDeVentas))
+        {
+            $listaDeArrayAsosiativo = [];
+
+            foreach ($listaDeVentas as $unVenta)
+            {
+                array_push($listaDeArrayAsosiativo, $unVenta->ObternerDatos());
+            }
+        }
+
+        return $listaDeArrayAsosiativo;
     }
 
     private function ObternerDatos() {

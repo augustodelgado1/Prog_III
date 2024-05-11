@@ -96,25 +96,31 @@ class Usuario{
 
     
 
-    public static function EscribirArrayPorCsv($listaDeUsuario,$nombreDeArchivo)
+    private static function SerializarArrayDeUsuarioJson($listaDeUsuario)
+    {
+        $listaStr = null;
+
+        if( isset($listaDeUsuario))
+        {
+            $listaStr = [];
+
+            foreach ($listaDeUsuario as $unUsuario)
+            {
+                array_push($listaStr, $unUsuario->ObternerDatos() );
+            }
+        }
+
+        return $listaStr;
+    }
+    public static function EscribirArrayPorJson($listaDeUsuario,$nombreDeArchivo)
     {
         $estado = false;
         $unArchivo = fopen($nombreDeArchivo,"w");
 
-        if(isset($unArchivo) && isset( $listaDeUsuario) && count($listaDeUsuario) > 0){
-            
-            $estado = true;
-            
-            foreach( $listaDeUsuario as $UnUsuario ){
-
-                if(!fputcsv($unArchivo,array($UnUsuario->_mail,$UnUsuario->_nombre,$UnUsuario->_clave)))
-                {
-                    $estado = false;
-                    break;
-                }
-            }
-
-           
+        if(isset($unArchivo) && isset($listaDeUsuario) && count($listaDeUsuario) > 0 &&
+        ($listaStr = Usuario::SerializarArrayDeUsuarioJson($listaDeUsuario)) !== null)
+        {
+            $estado = fwrite($unArchivo ,json_encode($listaStr));
             fclose($unArchivo);
         }
 
