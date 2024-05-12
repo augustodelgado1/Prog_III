@@ -91,7 +91,7 @@ class Usuario{
     private static function CrearIdAutoIncremental()
     {
        
-        return  rand(1,10.000);
+        return  rand(1,10000);
     }
 
     

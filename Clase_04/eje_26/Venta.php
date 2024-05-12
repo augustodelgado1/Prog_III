@@ -60,7 +60,7 @@ class Venta{
     public static function EscribirUnArrayDeVentaPorJson($listaDeVentas,$nombreDeArchivo)
     {
         $estado = false;
-        $unArchivo = fopen($nombreDeArchivo,"a+");
+        $unArchivo = fopen($nombreDeArchivo,"w");
 
         if(isset($unArchivo) && isset($listaDeVentas) &&
         ($listaDeArrayAsosiativo = Venta::SerializarArrayDeVentasJson($listaDeVentas)) !== null)
