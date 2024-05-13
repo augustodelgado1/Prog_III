@@ -64,13 +64,6 @@ class Venta{
 
 
 
-
-
-
-
-
-    
-
     // public static function EscribirArrayPorJson($listaDeVentas,$nombreDeArchivo)
     // {
     //     $estado = false;

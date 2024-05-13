@@ -24,7 +24,7 @@ class Usuario
     private $localidad;
     private static $fechaDeRegistro;
 
-    public function __construct($nombre,$apellido,$mail,$clave,$localidad) {
+    public function __construct($mail,$clave,$nombre = "",$apellido = "",$localidad = "") {
         $this->nombre = $nombre;
         $this->apellido = $apellido;
         $this->mail = $mail;
@@ -84,130 +84,115 @@ class Usuario
             $consulta = $unObjetoAccesoDato->RealizarConsulta("SELECT * FROM usuario");
             $estado = $consulta->execute();
             $listaDeUsuarios = $consulta->fetchAll();
-          
         }
 
         return  $listaDeUsuarios;
     }
-    public static function EscribirArrayPorJson($listaDeUsuario,$nombreDeArchivo)
+
+
+    public function VerificarUnUsuarioPorMailBD()
     {
         $estado = false;
-        $unArchivo = fopen($nombreDeArchivo,"w");
-
-        if(isset($unArchivo) && isset($listaDeUsuario) && count($listaDeUsuario) > 0)
+        $unObjetoAccesoDato = AccesoDatos::ObtenerUnObjetoPdo();
+        $consulta = null;
+        if(isset($unObjetoAccesoDato))
         {
-            Usuario::SerializarArrayDeUsuarioJson($listaDeUsuario);
-            var_dump($listaDeUsuario);
-            $estado = fwrite($unArchivo ,json_encode($listaDeUsuario));
-            fclose($unArchivo);
+            $consulta = $unObjetoAccesoDato->RealizarConsulta("SELECT COUNT(*) as cantidadTotal FROM usuario as u where u.mail = :mail");
+            $consulta->bindValue(':mail',$this->mail,PDO::PARAM_STR);
+            $consulta->execute();
+            $arrayPdo = $consulta->fetch(PDO::FETCH_ASSOC);
+            $estado = $arrayPdo['cantidadTotal'] > 0;
         }
 
-        return $estado;
+        return  $estado;
     }
 
-    private static function SerializarArrayDeUsuarioJson($listaDeArrayAsosiativos)
+    public function VerificarUnUsuarioBD()
     {
-        $listaDeUsuario = null;
-
-        if( isset($listaDeArrayAsosiativos))
+        $estado = false;
+        $unObjetoAccesoDato = AccesoDatos::ObtenerUnObjetoPdo();
+        $consulta = null;
+        if(isset($unObjetoAccesoDato))
         {
-            $listaDeUsuario = [];
-
-            foreach ($listaDeArrayAsosiativos as $ArrayAsosiativo)
-            {
-                foreach($ArrayAsosiativo as $key => $value)
-                {
-                    if(!property_exists(__CLASS__,$key))
-                    {
-                        $index = array_search($key, $ArrayAsosiativo);
-                        array_splice($ArrayAsosiativo,$index,1);
-                    }
-                }
-            }
+            $consulta = $unObjetoAccesoDato->RealizarConsulta("SELECT COUNT(*) as cantidadTotal FROM usuario as u where u.clave = :clave and u.mail = :mail");
+            $consulta->bindValue(':clave',$this->clave,PDO::PARAM_STR);
+            $consulta->bindValue(':mail',$this->mail,PDO::PARAM_STR);
+            $consulta->execute();
+            $arrayPdo = $consulta->fetch(PDO::FETCH_ASSOC);
+            $estado = $arrayPdo['cantidadTotal'] > 0;
         }
 
-        return $listaDeUsuario;
+        return  $estado;
     }
 
-    // public function Remove($unAuto)
-    // {
-    //    $retorno = false;
-    //    $index = 0;
-
-    //    if($retorno = ($unAuto != null && $this->Equals($unAuto) == true))
-    //    {
-    //        $index = array_search($unAuto, $this->_autos);
-    //        array_splice($this->_autos,$index,1);
-    //    }
-
-       
-    //    return $retorno;
-    // }
-
-    private function ObternerDatos() {
-        return array(
-            'nombre' => $this->nombre,
-            'apellido' => $this->apellido,
-            'mail' => $this->mail,
-            'clave' => $this->clave,
-            'localidad' => $this->localidad,
-            'fechaDeRegistro' => self::$fechaDeRegistro
-        );
-    }
-
-    // $nombre,$apellido,$mail,$clave,$localidad
     public static function ObtenerUnUsuarioPorArrayAsosiativo($unArrayAsosiativo)
     {
         $unUsuario = null;
 
-        if(Usuario::ValidarKeys($unArrayAsosiativo) == true)
+        if(isset($unArrayAsosiativo) && count($unArrayAsosiativo) > 0)
         {
             $unUsuario = new Usuario($unArrayAsosiativo['nombre'],$unArrayAsosiativo['apellido'],
             $unArrayAsosiativo['mail'],$unArrayAsosiativo['clave'],$unArrayAsosiativo['localidad']);
+            $unUsuario::$fechaDeRegistro = $unArrayAsosiativo['fechaDeRegistro'];
         }
         
         return $unUsuario;
     }
 
-    private static function ValidarKeys($unArrayAsosiativo)
+    public static function ObtenerUnUsuarioPorArrayAsosiativoPorMailYClave($unArrayAsosiativo)
     {
-        $estado = false;
+        $unUsuario = null;
 
         if(isset($unArrayAsosiativo) && count($unArrayAsosiativo) > 0)
         {
-            $estado = true;
-            foreach($unArrayAsosiativo as $key => $value)
-            {
-                if(!property_exists(__CLASS__, $key))
-                {
-                    $estado = false;
-                    echo'Es esta '. $key ;
-                    break;
-                }
-            }
+            $unUsuario = new Usuario( $unArrayAsosiativo['mail'],$unArrayAsosiativo['clave']);
         }
-
-        return $estado;
+        
+        return $unUsuario;
     }
 
-
-    
-    // private static function SerializarArrayDeUsuarioJson($listaDeUsuario)
+    // private static function ValidarKeys($unArrayAsosiativo)
     // {
-    //     $listaStr = null;
-
-    //     if( isset($listaDeUsuario))
+    //     $estado = false;
+    //     $propiedades = Usuario::ObternerPropiedades();
+    //     var_dump($unArrayAsosiativo);
+    //     if(isset($unArrayAsosiativo) && count($unArrayAsosiativo) > 0)
     //     {
-    //         $listaStr = [];
-
-    //         foreach ($listaDeUsuario as $unUsuario)
+    //         $estado = true;
+    //         foreach($propiedades as $unaPropiedad)
     //         {
-    //             array_push($listaStr, $unUsuario->ObternerDatos() );
+    //             if(!key_exists($unaPropiedad,$unArrayAsosiativo))
+    //             {
+    //                 $estado = false;
+    //                 break;
+    //             }
     //         }
     //     }
 
-    //     return $listaStr;
+    //     return $estado;
     // }
+
+    // // private $nombre;
+    // // private $apellido; 
+    // // private $clave;
+    // // private $mail;
+    // // private $localidad;
+    // // private static $fechaDeRegistro;
+    // private static function ObternerPropiedades() 
+    // {
+    //     return array(
+    //         'nombre',
+    //         'apellido' ,
+    //         'clave' ,
+    //         'mail' ,
+    //         'localidad' ,
+    //         'fechaDeRegistro' ,
+    //     );
+    // }
+
+
+    
+
 
 }
 

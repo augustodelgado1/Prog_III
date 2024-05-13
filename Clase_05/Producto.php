@@ -56,12 +56,158 @@ class Producto
         $consulta = null;
         if(isset($unObjetoAccesoDato))
         {
-            $consulta = $unObjetoAccesoDato->RealizarConsulta("SELECT * FROM producto");
+            $consulta = $unObjetoAccesoDato->RealizarConsulta("SELECT * FROM producto as p");
             $estado = $consulta->execute();
-            $listaDeProductos = $consulta->fetchAll();
+            $listaDeProductos = $consulta->fetchAll(Pdo::FETCH_ASSOC);
+        var_dump($listaDeProductos);
         }
 
         return  $listaDeProductos;
+    }
+
+    // private static $id;
+    // private $codigoDeBarra;
+    // private $nombre;
+    // private $tipo;
+    // private $stock;
+    // private $precio;
+    // private static $fechaDeCreacion;
+    // private static $fechaDeModificacion;
+
+    public static function ObtenerUnProductoPorArrayAsosiativo($unArrayAsosiativo)
+    {
+        $unProducto = null;
+
+        if(Producto::ValidarKeys($unArrayAsosiativo))
+        {
+            $unProducto = new Producto($unArrayAsosiativo['codigoDeBarra'],$unArrayAsosiativo['nombre'],
+            $unArrayAsosiativo['tipo'], $unArrayAsosiativo['stock'], $unArrayAsosiativo['precio']);
+        }
+        
+        return $unProducto;
+    }
+
+    private static function ValidarKeys($unArrayAsosiativo)
+    {
+        $estado = false;
+
+        if(isset($unArrayAsosiativo) && count($unArrayAsosiativo) > 0)
+        {
+            $estado = true;
+            foreach($unArrayAsosiativo as $key => $value)
+            {
+                if(!property_exists(__CLASS__, $key))
+                {
+                    $estado = false;
+                    break;
+                }
+            }
+        }
+
+        return $estado;
+    }
+
+    public function EvaluarUnProducto()
+    {
+        $mensaje = "no se pudo hacer";
+
+        if($this->AgragarStock())
+        {
+            $mensaje = "Actualizado";
+            
+        }else{
+
+            if($this->AgregarUnProductoBD())
+            {
+                $mensaje = "Ingresado";
+            }
+        }
+        
+        
+        return $mensaje;
+    }
+
+    public function BuscarUnProductoBD()
+    {
+        $estado = false;
+        $unObjetoAccesoDato = AccesoDatos::ObtenerUnObjetoPdo();
+        $consulta = null;
+        if(isset($unObjetoAccesoDato))
+        {
+            $consulta = $unObjetoAccesoDato->RealizarConsulta("SELECT COUNT(*) as cantidadTotal FROM producto as p where p.codigoDeBarra  = :codigoDeBarra ");
+            $consulta->bindValue(':codigoDeBarra',$this->codigoDeBarra,PDO::PARAM_STR);
+            $consulta->execute();
+            $arrayPdo = $consulta->fetch(PDO::FETCH_ASSOC);
+            $estado = $arrayPdo['cantidadTotal'] > 0;
+        }
+
+        return  $estado;
+    }
+
+    private function AgragarStock()
+    {
+        $estado = false;
+
+        if($this->BuscarUnProductoBD())
+        {
+            $this->stock++;
+            $estado = $this->ModificarUnProductoBD();
+        }
+
+        return $estado;
+    }
+
+    public function ModificarUnProductoBD()
+    {
+        $estado = false;
+        $unObjetoAccesoDato = AccesoDatos::ObtenerUnObjetoPdo();
+        $consulta = null;
+        if(isset($unObjetoAccesoDato))
+        {
+            $consulta = $unObjetoAccesoDato ->RealizarConsulta(
+           "UPDATE producto SET 
+           codigoDeBarra=:codigoDeBarra,
+           nombre=:nombre,
+           tipo=:tipo,
+           stock=:stock,
+           precio=:precio,
+           fechaDeCreacion=:fechaDeCreacion,
+           fechaDeModificacion=:fechaDeModificacion 
+           WHERE ID=:id ");
+            $consulta->bindValue(':id',self::$id,PDO::PARAM_INT);
+            $consulta->bindValue(':nombre',$this->nombre,PDO::PARAM_STR);
+            $consulta->bindValue(':codigoDeBarra',$this->codigoDeBarra,PDO::PARAM_STR);
+            $consulta->bindValue(':tipo',$this->tipo,PDO::PARAM_STR);
+            $consulta->bindValue(':stock',$this->stock,PDO::PARAM_INT);
+            $consulta->bindValue(':precio',$this->precio);
+            $consulta->bindValue(':fechaDeCreacion',self::$fechaDeCreacion);
+            $consulta->bindValue(':fechaDeModificacion',self::$fechaDeModificacion);
+            $estado = $consulta->execute();
+        }
+
+        return  $estado;
+    }
+    public function AgregarUnProductoBD()
+    {
+        $estado = false;
+        $unObjetoAccesoDato = AccesoDatos::ObtenerUnObjetoPdo();
+        $consulta = null;
+        if(isset($unObjetoAccesoDato))
+        {
+            $consulta = $unObjetoAccesoDato ->RealizarConsulta(
+           "INSERT INTO producto (nombre,codigoDeBarra,tipo,stock,precio,fechaDeCreacion,fechaDeModificacion) 
+            VALUES (:nombre,:codigoDeBarra,:tipo,:stock,:precio,:fechaDeCreacion,:fechaDeModificacion) ");
+            $consulta->bindValue(':nombre',$this->nombre,PDO::PARAM_STR);
+            $consulta->bindValue(':codigoDeBarra',$this->codigoDeBarra,PDO::PARAM_STR);
+            $consulta->bindValue(':tipo',$this->tipo,PDO::PARAM_STR);
+            $consulta->bindValue(':stock',$this->stock,PDO::PARAM_INT);
+            $consulta->bindValue(':precio',$this->precio);
+            $consulta->bindValue(':fechaDeCreacion',self::$fechaDeCreacion);
+            $consulta->bindValue(':fechaDeModificacion',self::$fechaDeModificacion);
+            $estado = $consulta->execute();
+        }
+
+        return  $estado;
     }
 
 

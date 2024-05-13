@@ -18,7 +18,7 @@ switch($_GET['listado'])
 {
     case 'usuarios':
 
-        $mensaje = json_encode(Usuario::ObtenerListaDeUsuariosBD());
+        $mensaje = json_encode(Usuario::ObtenerListaDeUsuariosBD(),JSON_PRETTY_PRINT);
         if(!isset($mensaje ))
         {
             $mensaje = "No se pudo guardar la lista de usuarios en json";
@@ -26,7 +26,7 @@ switch($_GET['listado'])
     break;
 
     case 'productos':
-        $mensaje = json_encode(Producto::ObtenerListaDeProductosBD());
+        $mensaje = json_encode(Producto::ObtenerListaDeProductosBD(),JSON_PRETTY_PRINT);
         if(!isset($mensaje ))
         {
             $mensaje = "No se pudo guardar la lista de producto en json";
@@ -34,7 +34,7 @@ switch($_GET['listado'])
     break;
 
     case 'ventas':
-        $mensaje = json_encode(Venta::ObtenerListaDeVentasBD());
+        $mensaje = json_encode(Venta::ObtenerListaDeVentasBD(),JSON_PRETTY_PRINT);
         if(!isset($mensaje ))
         {
             $mensaje = "No se pudo guardar la lista de ventas en json";

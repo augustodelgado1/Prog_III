@@ -12,42 +12,24 @@ Hacer los métodos necesarios en la clase usuario. -->
 
 <?php
 require_once "Usuario.php";
-require_once "Producto.php";
-require_once "Venta.php";
 $listaDeUsuarios =  null;
 $mensaje = "No se recibieron parametros por post";
 
-
-switch($_GET['listado'])
+if(($unUsuario = Usuario::ObtenerUnUsuarioPorArrayAsosiativoPorMailYClave($_POST)) !== null)
 {
-    case 'usuarios':
+    $mensaje = "Usuario no registrado";
+    
+    if($unUsuario->VerificarUnUsuarioBD())
+    {
+        $mensaje = "Verificado";
 
-        $mensaje = json_encode(Usuario::ObtenerListaDeUsuariosBD());
-        if(!isset($mensaje ))
+    }else{
+
+        if($unUsuario->VerificarUnUsuarioPorMailBD())
         {
-            $mensaje = "No se pudo guardar la lista de usuarios en json";
+            $mensaje = "Error en los datos";
         }
-    break;
-
-    case 'productos':
-        $mensaje = json_encode(Producto::ObtenerListaDeProductosBD());
-        if(!isset($mensaje ))
-        {
-            $mensaje = "No se pudo guardar la lista de producto en json";
-        }
-    break;
-
-    case 'ventas':
-        $mensaje = json_encode(Venta::ObtenerListaDeVentasBD());
-        if(!isset($mensaje ))
-        {
-            $mensaje = "No se pudo guardar la lista de ventas en json";
-        }
-    break;
-
-    default:
-    $mensaje =json_encode(['mensaje' => 'Tipo de listado no válido']);
-    break;
+    }
 }
 
 echo $mensaje;

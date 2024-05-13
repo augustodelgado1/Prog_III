@@ -12,7 +12,7 @@ class AccesoDatos
         try {
             self::$conneccionStr = 'mysql:host=localhost;dbname=eje7';
             $this->objetoPdo = new PDO(self::$conneccionStr,'root','');
-          var_dump( $this->objetoPdo);
+        //   var_dump( $this->objetoPdo);
           //exec -> ejecuta una quary 
         } catch (PDOException $th) {
             echo "Error: ".$th->getMessage();
