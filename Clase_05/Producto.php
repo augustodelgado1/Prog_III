@@ -59,7 +59,6 @@ class Producto
             $consulta = $unObjetoAccesoDato->RealizarConsulta("SELECT * FROM producto as p");
             $estado = $consulta->execute();
             $listaDeProductos = $consulta->fetchAll(Pdo::FETCH_ASSOC);
-        var_dump($listaDeProductos);
         }
 
         return  $listaDeProductos;

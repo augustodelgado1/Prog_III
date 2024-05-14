@@ -10,7 +10,7 @@ class AccesoDatos
     private function __construct() 
     {
         try {
-            self::$conneccionStr = 'mysql:host=localhost;dbname=eje7';
+            self::$conneccionStr = 'mysql:host=localhost;dbname=pizza';
             $this->objetoPdo = new PDO(self::$conneccionStr,'root','');
         } catch (PDOException $th) {
             echo "Error: ".$th->getMessage();

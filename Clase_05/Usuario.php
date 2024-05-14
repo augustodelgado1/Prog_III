@@ -33,12 +33,6 @@ class Usuario
         self::$fechaDeRegistro = date("Y-m-d");
     }
 
-    public function ToString()
-    {
-        return "Nombre :".$this->nombre.PHP_EOL."Apellido:".$this->apellido.PHP_EOL
-        ."Mail:".$this->mail.PHP_EOL."Localidad:".$this->localidad.PHP_EOL."FechaDeRegistro:".self::$fechaDeRegistro;
-    }
-
 //     <!--
 //  Aplicación No 27 (Registro BD)
 // Archivo: registro.php
@@ -150,48 +144,6 @@ class Usuario
         
         return $unUsuario;
     }
-
-    // private static function ValidarKeys($unArrayAsosiativo)
-    // {
-    //     $estado = false;
-    //     $propiedades = Usuario::ObternerPropiedades();
-    //     var_dump($unArrayAsosiativo);
-    //     if(isset($unArrayAsosiativo) && count($unArrayAsosiativo) > 0)
-    //     {
-    //         $estado = true;
-    //         foreach($propiedades as $unaPropiedad)
-    //         {
-    //             if(!key_exists($unaPropiedad,$unArrayAsosiativo))
-    //             {
-    //                 $estado = false;
-    //                 break;
-    //             }
-    //         }
-    //     }
-
-    //     return $estado;
-    // }
-
-    // // private $nombre;
-    // // private $apellido; 
-    // // private $clave;
-    // // private $mail;
-    // // private $localidad;
-    // // private static $fechaDeRegistro;
-    // private static function ObternerPropiedades() 
-    // {
-    //     return array(
-    //         'nombre',
-    //         'apellido' ,
-    //         'clave' ,
-    //         'mail' ,
-    //         'localidad' ,
-    //         'fechaDeRegistro' ,
-    //     );
-    // }
-
-
-    
 
 
 }

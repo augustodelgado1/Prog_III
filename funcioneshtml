@@ -1,0 +1,351 @@
+<?php
+
+class T
+{
+
+
+
+     //Json
+
+     //Escibir
+     public static function EscribirPizzaEnArrayJson($listaDePizzas,$nombreDeArchivo)
+    {
+        $estado = false; 
+        $unArchivo = fopen($nombreDeArchivo,"w");
+        $listaDeArrayAsosiativos = null;
+
+        if(isset($listaDePizzas) && isset($unArchivo)
+        && ($listaDeArrayAsosiativos = T::SerializarListaJson($listaDePizzas)) !== null)
+        {
+            $estado = fwrite($unArchivo, json_encode( $listaDeArrayAsosiativos));
+        }
+
+        return  $estado ;
+    }
+
+    //Serializar
+    private static function SerializarListaJson($listaDePizzas)
+    {
+        $listaDeArrayAsosiativos = null; 
+
+        if(isset($listaDePizzas))
+        {
+            $listaDeArrayAsosiativos = [];
+
+            foreach($listaDePizzas as $unaT)
+            {
+                array_push($listaDeArrayAsosiativos,$unaT->ObtenerDatos());
+            }
+        }
+
+        return  $listaDeArrayAsosiativos ;
+    }
+
+    //Leer Json
+    public static function LeerListaJson($nombreDeArchivo)
+    {
+        $unArchivo = fopen($nombreDeArchivo,"r");
+        $listaDeArrayAsosiativos = null;
+        $listaDePizza = null;
+        if(isset($unArchivo) &&  $unArchivo !== false)
+        {
+            $strJson = fgets($unArchivo);
+            $listaDeArrayAsosiativos =  json_decode($strJson,true);
+            $listaDePizza = T::DeserializarListaJson($listaDeArrayAsosiativos);
+        }
+
+        return  $listaDePizza;
+    }
+
+    
+
+    ///Deserializar Lista Json
+
+    private static function DeserializarListaJson($listaDeArrayAsosiativos)
+    {
+        $listaDePizza = null; 
+
+        if(isset($listaDeArrayAsosiativos))
+        {
+            $listaDePizza = [];
+
+            foreach($listaDeArrayAsosiativos as $unaArrayAsosiativo)
+            {
+                array_push($listaDePizza,new T($unaArrayAsosiativo['precio'],$unaArrayAsosiativo['stock'],$unaArrayAsosiativo['tipo'],$unaArrayAsosiativo['sabor']));
+            }
+        }
+
+        return  $listaDePizza ;
+    }
+
+
+    ///ObtenerDatos
+    private function ObtenerDatos()
+    {
+        return array(
+            'stock' => $this->stock,
+            'precio' => $this->precio,
+            'tipo' => $this->tipo,
+            'sabor' => $this->sabor,
+            'id' => self::$id,
+        );
+    }
+
+
+    //Filtrar
+    public static function FiltrarPorTipo($listaDePizzas,$tipo)
+    {
+        $listaDeTipoDePizza = null;
+
+        if(isset($listaDePizzas) && isset($tipo) && count($listaDePizzas) > 0)
+        {
+            $listaDeTipoDePizza =  [];
+
+            foreach($listaDePizzas as $unaT)
+            {
+                if($unaT->tipo == $tipo)
+                {
+                    array_push($listaDeTipoDePizza,$unaT);
+                }
+            }
+        }
+
+        return  $listaDeTipoDePizza;
+    }
+
+    //Add Array
+
+    public function add($lista,$unObj)
+    {
+        $estado = false;
+
+            if(isset($listaDePizza) && isset($unObj))
+            {
+                array_push($listaDePizza,$unObj);
+            }
+
+            return  $estado ;
+    }
+
+
+    //Remove
+
+    public function Remove($unAuto)
+    {
+       $retorno = false;
+       $index = 0;
+
+       if($retorno = ($unAuto != null && $this->Buscar($unAuto) == true))
+       {
+           $index = array_search($unAuto, $this->_autos);
+           array_splice($this->_autos,$index,1);
+       }
+
+       
+       return $retorno;
+    }
+
+    //Buscar
+}
+
+
+class File
+{
+    private $path;
+    private $nombreDelArchivo;
+
+    public static function CrearUnDirectorio($ruta)
+    {
+        $estado = false;
+
+        if(!file_exists($ruta)  )
+        {
+            $estado = mkdir($ruta);
+        }
+
+        return $estado;
+    }
+    public static function LeerArchivoCsv($nombreDeArchivo)
+    {
+        $listaDeLineas  = null;
+        $unArchivo = fopen($nombreDeArchivo,"r");
+
+        if(isset($unArchivo)){
+
+            $listaDeLineas = [];
+    
+            while(($unaLinea = fgetcsv($unArchivo)) !== false){
+
+                if(isset($unaLinea))
+                {
+                    array_push($listaDeLineas,$unaLinea);
+                }
+            }
+
+            fclose($unArchivo);
+        }
+
+        return   $listaDeLineas ;
+    }
+
+    public function MoverFoto($tmpNombre,$rutaASubir,$nombreDeArchivo)
+    {
+        $estado = false;
+       
+        if(isset($tmpNombre) && isset($rutaASubir))
+        {
+            $rutaDestino = $rutaASubir . /*$this->nombre.*/ time(). $nombreDeArchivo;
+            $estado =  move_uploaded_file($tmpNombre,$rutaDestino);
+        }
+
+        return $estado;
+    }
+
+    public function recortarHastaCaracter($cadena, $caracter) {
+        // Encontrar la posición del primer carácter especificado en la cadena
+        $nuevoStr = null;
+
+        if(($posicion = strpos($cadena, $caracter)) !== false)
+        {
+            // Recortar la cadena hasta la posición del carácter y devolver el resultado
+            $nuevoStr = substr($cadena, 0, $posicion);
+        }
+
+        return $nuevoStr;
+    }
+}
+
+
+
+class Usuario
+{
+    private $nombre;
+    private $apellido; 
+    private $clave;
+    private $mail;
+    private $localidad;
+    private static $fechaDeRegistro;
+
+    public function __construct($mail,$clave,$nombre = "",$apellido = "",$localidad = "") {
+        $this->nombre = $nombre;
+        $this->apellido = $apellido;
+        $this->mail = $mail;
+        $this->clave = $clave;
+        $this->localidad = $localidad;
+        self::$fechaDeRegistro = date("Y-m-d");
+    }
+
+    public function ToString()
+    {
+        return "Nombre :".$this->nombre.PHP_EOL."Apellido:".$this->apellido.PHP_EOL
+        ."Mail:".$this->mail.PHP_EOL."Localidad:".$this->localidad.PHP_EOL."FechaDeRegistro:".self::$fechaDeRegistro;
+    }
+    
+    public function AgregarUnUsuarioBD()
+    {
+        $estado = false;
+        $unObjetoAccesoDato = AccesoDatos::ObtenerUnObjetoPdo();
+        $consulta = null;
+        if(isset($unObjetoAccesoDato))
+        {
+            $consulta = $unObjetoAccesoDato ->RealizarConsulta(
+                "INSERT INTO usuario (nombre,apellido,clave,mail,localidad,fechaDeRegistro) 
+            VALUES (:nombre,:apellido,:clave,:mail,:localidad,:fechaDeRegistro) ");
+            $consulta->bindValue(':nombre',$this->nombre,PDO::PARAM_STR);
+            $consulta->bindValue(':apellido',$this->apellido,PDO::PARAM_STR);
+            $consulta->bindValue(':mail',$this->mail,PDO::PARAM_STR);
+            $consulta->bindValue(':clave',$this->clave,PDO::PARAM_STR);
+            $consulta->bindValue(':localidad',$this->localidad,PDO::PARAM_STR);
+            $consulta->bindValue(':fechaDeRegistro',self::$fechaDeRegistro);
+            $estado = $consulta->execute();
+        }
+
+        return  $estado;
+    }
+
+    public static function ObtenerListaDeUsuariosBD()
+    {
+        $listaDeUsuarios = null;
+        $unObjetoAccesoDato = AccesoDatos::ObtenerUnObjetoPdo();
+        $consulta = null;
+        if(isset($unObjetoAccesoDato))
+        {
+            $consulta = $unObjetoAccesoDato->RealizarConsulta("SELECT * FROM usuario");
+            $estado = $consulta->execute();
+            $listaDeUsuarios = $consulta->fetchAll();
+        }
+
+        return  $listaDeUsuarios;
+    }
+
+
+    public function VerificarUnUsuarioPorMailBD()
+    {
+        $estado = false;
+        $unObjetoAccesoDato = AccesoDatos::ObtenerUnObjetoPdo();
+        $consulta = null;
+        if(isset($unObjetoAccesoDato))
+        {
+            $consulta = $unObjetoAccesoDato->RealizarConsulta("SELECT COUNT(*) as cantidadTotal FROM usuario as u where u.mail = :mail");
+            $consulta->bindValue(':mail',$this->mail,PDO::PARAM_STR);
+            $consulta->execute();
+            $arrayPdo = $consulta->fetch(PDO::FETCH_ASSOC);
+            $estado = $arrayPdo['cantidadTotal'] > 0;
+        }
+
+        return  $estado;
+    }
+
+    public function VerificarUnUsuarioBD()
+    {
+        $estado = false;
+        $unObjetoAccesoDato = AccesoDatos::ObtenerUnObjetoPdo();
+        $consulta = null;
+        if(isset($unObjetoAccesoDato))
+        {
+            $consulta = $unObjetoAccesoDato->RealizarConsulta("SELECT COUNT(*) as cantidadTotal FROM usuario as u where u.clave = :clave and u.mail = :mail");
+            $consulta->bindValue(':clave',$this->clave,PDO::PARAM_STR);
+            $consulta->bindValue(':mail',$this->mail,PDO::PARAM_STR);
+            $consulta->execute();
+            $arrayPdo = $consulta->fetch(PDO::FETCH_ASSOC);
+            $estado = $arrayPdo['cantidadTotal'] > 0;
+        }
+
+        return  $estado;
+    }
+
+    public static function ObtenerUnUsuarioPorArrayAsosiativo($unArrayAsosiativo)
+    {
+        $unUsuario = null;
+
+        if(isset($unArrayAsosiativo) && count($unArrayAsosiativo) > 0)
+        {
+            $unUsuario = new Usuario($unArrayAsosiativo['nombre'],$unArrayAsosiativo['apellido'],
+            $unArrayAsosiativo['mail'],$unArrayAsosiativo['clave'],$unArrayAsosiativo['localidad']);
+            $unUsuario::$fechaDeRegistro = $unArrayAsosiativo['fechaDeRegistro'];
+        }
+        
+        return $unUsuario;
+    }
+
+    public static function ObtenerUnUsuarioPorArrayAsosiativoPorMailYClave($unArrayAsosiativo)
+    {
+        $unUsuario = null;
+
+        if(isset($unArrayAsosiativo) && count($unArrayAsosiativo) > 0)
+        {
+            $unUsuario = new Usuario( $unArrayAsosiativo['mail'],$unArrayAsosiativo['clave']);
+        }
+        
+        return $unUsuario;
+    }
+
+    private static function CrearIdAutoIncremental()
+    {
+        return  rand(1,10000);
+    }
+
+
+}
+
+

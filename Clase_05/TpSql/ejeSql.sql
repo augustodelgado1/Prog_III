@@ -21,10 +21,11 @@ SELECT * FROM venta WHERE cantidad BETWEEN 6 AND 10
 SELECT SUM(cantidad) as cantidadTotal FROM venta;
 
 5. Mostrar los primeros 3 números de productos que se han enviado.
-SELECT id FROM producto LIMIT 3;
+SELECT v.idProducto FROM venta as v order by v.fechaDeVenta LIMIT 3;
 
 6. Mostrar los nombres del usuario y los nombres de los productos de cada venta.
-SELECT u.nombre AS nombreDeUsuario, p.nombre AS nombreDeProducto FROM venta as v
+SELECT u.nombre AS nombreDeUsuario, p.nombre 
+AS nombreDeProducto FROM venta as v
 JOIN usuario u on u.id = v.idUsuario
 JOIN producto p on p.id = v.idProducto;
 
@@ -68,4 +69,4 @@ UPDATE producto SET stock=0 WHERE stock <= 20;
 DELETE FROM producto WHERE id=1010;
 
 18.Eliminar a todos los usuarios que no han vendido productos
-DELETE FROM usuario WHERE usuario.id  NOT IN (SELECT idUsuario FROM venta);
+DELETE FROM usuario WHERE usuario.id  NOT IN (SELECT DISTINCT idUsuario FROM venta);
