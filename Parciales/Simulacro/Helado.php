@@ -142,6 +142,9 @@ class Helado
         return  $unaHeladoABuscar;
     }
 
+    
+
+
     public static function BuscarHeladoPorTipo($listaDeHelados,$tipo)
     {
         $unaHeladoABuscar = null; 

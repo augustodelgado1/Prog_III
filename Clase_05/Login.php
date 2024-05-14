@@ -15,7 +15,8 @@ require_once "Usuario.php";
 $listaDeUsuarios =  null;
 $mensaje = "No se recibieron parametros por post";
 
-if(($unUsuario = Usuario::ObtenerUnUsuarioPorArrayAsosiativoPorMailYClave($_POST)) !== null)
+if(isset($_POST['mail']) && isset($_POST['clave']) 
+&& ($unUsuario = new Usuario($_POST['mail'],$_POST['clave'],"pepe","manuel","Avellaneda")) !== null)
 {
     $mensaje = "Usuario no registrado";
     

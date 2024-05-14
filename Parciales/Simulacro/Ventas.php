@@ -14,41 +14,86 @@ e- El listado de ventas por vaso Cucurucho. -->
 class Venta
 {
     private static $id;
-    private $email;
-    private $idDeHelado;
+    private $unUsuario;
+    private $unHelado;
     private $cantidad;
     private static $fechaDeVenta;
 
    
 
-    public function __construct($email,$idDeHelado,$cantidad) {
-        $this->email = $email;
-        $this->idDeHelado = $idDeHelado;
+    public function __construct($unUsuario,$unHelado,$cantidad) {
+        $this->unUsuario = $unUsuario;
+        $this->unHelado = $unHelado;
         $this->cantidad = $cantidad;
         self::$fechaDeVenta = date("Y-m-d");
         self::$id = rand(1,10000);
     }
 
-    // b- El listado de ventas de un usuario ingresado.
+//     <!-- 4- (1 pts.)ConsultasVentas.php: (por GET)
+// Datos a consultar:
+// a- La cantidad de Helados 
+// vendidos en un día en particular(se envía por parámetro), si no se pasa fecha, se
+// muestran las del día de ayer.
+// b- El listado de ventas de un usuario ingresado.
+// c- El listado de ventas entre dos fechas ordenado por nombre.
+// d- El listado de ventas por sabor ingresado.
+// e- El listado de ventas por vaso Cucurucho. -->
 
-    public static function FiltrarPorUsuario($listaDeVenta,$email)
+// a- La cantidad de Helados 
+// vendidos en un día en particular(se envía por parámetro), si no se pasa fecha, se
+// muestran las del día de ayer.
+// date('Y-m-d ', strtotime('yesterday'));
+    public static function FiltrarPorUnaFecha($listaDeVenta,$fecha)
     {
-        $filtrarPorUsuario = null;
+        $filtraPorUnaFecha = null;
 
-        if(isset($listaDeVenta) && isset($Usuario) && count($listaDeVenta) > 0)
+        if(isset($listaDeVenta) && isset($fecha) && count($listaDeVenta) > 0)
         {
-            $filtrarPorUsuario =  [];
+            $filtraPorUnaFecha =  [];
 
             foreach($listaDeVenta as $unaVenta)
             {
-                if($unaVenta->email == $email)
+                if($unaVenta::$fechaDeVenta == $fecha )
                 {
-                    array_push($filtrarPorUsuario,$email);
+                    array_push($filtraPorUnaFecha,$unaVenta);
                 }
             }
         }
 
-        return  $filtrarPorUsuario;
+        return  $filtraPorUnaFecha;
+    }
+
+
+    public static function FiltrarPorUsuario($listaDeVenta,$unUsuario)
+    {
+        $listaDeVentasDeUnUsuario = null;
+
+        if(isset($listaDeVenta) && isset($Usuario) && count($listaDeVenta) > 0)
+        {
+            $listaDeVentasDeUnUsuario =  [];
+
+            foreach($listaDeVenta as $unaVenta)
+            {
+                if($unaVenta->unUsuario == $unUsuario)
+                {
+                    array_push($listaDeVentasDeUnUsuario,$unaVenta);
+                }
+            }
+        }
+
+        return  $listaDeVentasDeUnUsuario;
+    }
+
+    public function RealizarVenta($unUsuario,$unHelado,$cantidad )
+    {
+        $unaVenta = null;
+        if(isset($unHelado) && isset($unUsuario) && 
+        $unHelado->GetStock() > 0 && $cantidad > 0 && $cantidad <= $unHelado->GetStock())
+        {
+            $unaVenta = new Venta($unUsuario,$unHelado,$cantidad);
+        }
+
+        return $unaVenta;
     }
 
 //     c- El listado de ventas entre dos fechas ordenado por nombre.
@@ -65,7 +110,7 @@ class Venta
 
             foreach($listaDeVenta as $unaVenta)
             {
-                if($unaVenta::$fechaDeVenta < $fechaDesde && $unaVenta::$fechaDeVenta > $fechaHasta)
+                if($unaVenta::$fechaDeVenta <= $fechaDesde && $unaVenta::$fechaDeVenta >= $fechaHasta)
                 {
                     array_push($filtrarPorVenta,$unaVenta);
                 }
@@ -76,27 +121,45 @@ class Venta
     }
 
     // d- El listado de ventas por sabor ingresado.
-
-    public static function FiltrarPorSabor($listaDeVenta,$listaDeHelados,$sabor,$fechaHasta)
+    // e- El listado de ventas por vaso Cucurucho.
+    public static function ObetenerListaDeHeladosVendidos($listaDeVenta)
     {
-        $filtrarPorVenta = null;
+        $listaDeHeladosVendidos = null;
 
         if(isset($listaDeVenta) && isset($Usuario) && count($listaDeVenta) > 0)
         {
-            $filtrarPorVenta =  [];
+            $listaDeHeladosVendidos =  [];
             
-
             foreach($listaDeVenta as $unaVenta)
             {
-                $unHelado = Helado::BuscarHeladoPorId($listaDeHelados,$unaVenta->idDeHelado);
-                if(isset($unHelado))
+                if(!array_search($listaDeHeladosVendidos,$unaVenta->unHelado))
                 {
-                    Helado::BuscarHeladoPorSabor(array($unHelado),$sabor);
+                    array_push($listaDeHeladosVendidos,$unaVenta->unHelado);
                 }
             }
         }
 
-        return  $filtrarPorVenta;
+        return  $listaDeHeladosVendidos;
+    }
+
+    public static function ObetenerListaDeUsuarioVendidos($listaDeVenta)
+    {
+        $listaDeUsuarioCompraron = null;
+
+        if(isset($listaDeVenta) && isset($Usuario) && count($listaDeVenta) > 0)
+        {
+            $listaDeUsuarioCompraron =  [];
+            
+            foreach($listaDeVenta as $unaVenta)
+            {
+                if(!array_search($listaDeUsuarioCompraron,$unaVenta->unUsuario))
+                {
+                    array_push($listaDeUsuarioCompraron,$unaVenta->unUsuario);
+                }
+            }
+        }
+
+        return  $listaDeUsuarioCompraron;
     }
 
     // e- El listado de ventas por vaso Cucurucho.
@@ -176,8 +239,8 @@ class Venta
     private function ObtenerDatos()
     {
         return array(
-            'email' => $this->email,
-            'idDeHelado' => $this->idDeHelado,
+            'unUsuario' => $this->unUsuario,
+            'unHelado' => $this->unHelado,
             'cantidad' => $this->cantidad,
             'fechaDeVenta' => self::$fechaDeVenta,
             'id' => self::$id,

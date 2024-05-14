@@ -55,6 +55,7 @@ class Venta{
             $consulta = $unObjetoAccesoDato->RealizarConsulta("SELECT * FROM venta");
             $estado = $consulta->execute();
             $listaDeVentas = $consulta->fetchAll();
+            $listaDeUsuarios = $consulta->fetchAll(Pdo::FETCH_CLASS,__CLASS__,array('idDeUsuario','idProducto','cantidad'));
         }
 
         return  $listaDeVentas;
