@@ -1,0 +1,289 @@
+<?php
+
+class T
+{
+
+
+
+     //Json
+
+     //Escibir
+  
+
+    //Serializar
+    private static function SerializarListaJson($listaDePizzas)
+    {
+        $listaDeArrayAsosiativos = null; 
+
+        if(isset($listaDePizzas))
+        {
+            $listaDeArrayAsosiativos = [];
+
+            foreach($listaDePizzas as $unaT)
+            {
+                array_push($listaDeArrayAsosiativos,$unaT->ObtenerDatos());
+            }
+        }
+
+        return  $listaDeArrayAsosiativos ;
+    }
+
+    public static function LeerJson($nombreDeArchivo)
+    {
+        return Venta::DeserializarListaJson(File::LeerListaJson($nombreDeArchivo,true));
+    }
+
+    ///Deserializar Lista Json
+
+    private static function DeserializarListaJson($listaDeArrayAsosiativos)
+    {
+        $listaDePizza = null; 
+
+        if(isset($listaDeArrayAsosiativos))
+        {
+            $listaDePizza = [];
+
+            foreach($listaDeArrayAsosiativos as $unaArrayAsosiativo)
+            {
+                array_push($listaDePizza,new T($unaArrayAsosiativo['precio'],$unaArrayAsosiativo['stock'],$unaArrayAsosiativo['tipo'],$unaArrayAsosiativo['sabor']));
+            }
+        }
+
+        return  $listaDePizza ;
+    }
+
+
+    ///ObtenerDatos
+    private function ObtenerDatos()
+    {
+        return array(
+            'stock' => $this->stock,
+            'precio' => $this->precio,
+            'tipo' => $this->tipo,
+            'sabor' => $this->sabor,
+            'id' => self::$id,
+        );
+    }
+
+    public static function ObtenerUnaDevolucionPorArrayAsosiativo($unArrayAsosiativo)
+    {
+        $unaDevolucion = null;
+
+        if(isset($unArrayAsosiativo))
+        {
+            $unaDevolucion = new Devolucion($unArrayAsosiativo['causa'],$unArrayAsosiativo['rutaDeLafoto'],$unArrayAsosiativo['imagen']);
+            $unaDevolucion->SetId($unArrayAsosiativo['id']);
+        }
+        
+        return $unaDevolucion;
+    }
+
+    private function SetId($id)
+    {
+        $estado = false;
+        if(isset($id))
+        {
+            $this->id = $id;
+            $estado = true;
+        }
+
+        return  $estado ;
+    }
+
+
+    
+
+    //Add Array
+
+    public function add($lista,$unObj)
+    {
+        $estado = false;
+
+            if(isset($listaDePizza) && isset($unObj))
+            {
+                array_push($listaDePizza,$unObj);
+            }
+
+            return  $estado ;
+    }
+
+
+    //Remove
+
+    public function Remove($unAuto)
+    {
+       $retorno = false;
+       $index = 0;
+
+       if($retorno = ($unAuto != null && $this->Buscar($unAuto) == true))
+       {
+           $index = array_search($unAuto, $this->_autos);
+           array_splice($this->_autos,$index,1);
+       }
+
+       
+       return $retorno;
+    }
+
+    //Buscar
+
+    public static function BuscarHeladoPorSabor($listaDeHelados,$sabor)
+    {
+        $unaHeladoABuscar = null; 
+
+        if(isset($listaDeHelados) )
+        {
+            foreach($listaDeHelados as $unaHelado)
+            {
+                if($unaHelado->sabor == $sabor)
+                {
+                    $unaHeladoABuscar = $unaHelado; 
+                    break;
+                }
+            }
+        }
+
+        return  $unaHeladoABuscar;
+    }
+
+    //Filtrar
+    public static function FiltrarPorTipo($listaDePizzas,$tipo)
+    {
+        $listaDeTipoDePizza = null;
+
+        if(isset($listaDePizzas) && isset($tipo) && count($listaDePizzas) > 0)
+        {
+            $listaDeTipoDePizza =  [];
+
+            foreach($listaDePizzas as $unaT)
+            {
+                if($unaT->tipo == $tipo)
+                {
+                    array_push($listaDeTipoDePizza,$unaT);
+                }
+            }
+        }
+
+        return  $listaDeTipoDePizza;
+    }
+
+    //Contar
+
+    public static function ContarPorUnaFecha($listaDeVenta,$fecha)
+    {
+        $filtraPorUnaFecha = null;
+        $cantidad = -1;
+
+        if(isset($listaDeVenta) && isset($fecha))
+        {
+            $cantidad = 0;
+
+            foreach($listaDeVenta as $unaVenta)
+            {
+                if($unaVenta::$fechaDeVenta == $fecha)
+                {
+                    $cantidad++;
+                }
+            }
+        }
+
+        return  $filtraPorUnaFecha;
+    }
+
+}
+
+
+class File
+{
+    private $path;
+    private $nombreDelArchivo;
+
+    public static function CrearUnDirectorio($ruta)
+    {
+        $estado = false;
+
+        if(!file_exists($ruta)  )
+        {
+            $estado = mkdir($ruta);
+        }
+
+        return $estado;
+    }
+    public static function LeerArchivoCsv($nombreDeArchivo)
+    {
+        $listaDeLineas  = null;
+        $unArchivo = fopen($nombreDeArchivo,"r");
+
+        if(isset($unArchivo)){
+
+            $listaDeLineas = [];
+    
+            while(($unaLinea = fgetcsv($unArchivo)) !== false){
+
+                if(isset($unaLinea))
+                {
+                    array_push($listaDeLineas,$unaLinea);
+                }
+            }
+
+            fclose($unArchivo);
+        }
+
+        return   $listaDeLineas ;
+    }
+
+    public function MoverFoto($tmpNombre,$rutaASubir,$nombreDeArchivo)
+    {
+        $estado = false;
+       
+        if(isset($tmpNombre) && isset($rutaASubir))
+        {
+            $rutaDestino = $rutaASubir . /*$this->nombre.*/ time(). $nombreDeArchivo;
+            $estado =  move_uploaded_file($tmpNombre,$rutaDestino);
+        }
+
+        return $estado;
+    }
+
+    //Set Foto
+
+    private function SetImagen($ruta,$nombreDelaImagen)
+    {
+        $estado = false;
+        if(isset($ruta) && isset($nombreDelaImagen))
+        {
+            $this->nombreDeLaImagen = $nombreDelaImagen;
+            $this->rutaDeLafoto = $ruta;
+            $estado = true;
+        }
+
+        return $estado;
+    }
+
+    public function ModificarFoto($nuevaRuta,$nombreDelaImagen)
+    {
+        $estado = false;
+        if(File::MoverFoto($this->rutaDeLafoto,$nuevaRuta,$nombreDelaImagen))
+        {
+            $this->SetImagen($nuevaRuta,$nombreDelaImagen);
+            $estado = true;
+        }
+
+        return $estado;
+    }
+    public function recortarHastaCaracter($cadena, $caracter) {
+        // Encontrar la posición del primer carácter especificado en la cadena
+        $nuevoStr = null;
+
+        if(($posicion = strpos($cadena, $caracter)) !== false)
+        {
+            // Recortar la cadena hasta la posición del carácter y devolver el resultado
+            $nuevoStr = substr($cadena, 0, $posicion);
+        }
+
+        return $nuevoStr;
+    }
+}
+
+
+

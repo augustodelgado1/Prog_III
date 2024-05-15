@@ -24,7 +24,8 @@ class Usuario
     private $localidad;
     private static $fechaDeRegistro;
 
-    public function __construct($mail,$clave,$nombre,$apellido,$localidad) {
+    public function __construct($mail,$clave,$nombre,$apellido,$localidad) 
+    {
         $this->nombre = $nombre;
         $this->apellido = $apellido;
         $this->mail = $mail;
@@ -77,8 +78,7 @@ class Usuario
         {
             $consulta = $unObjetoAccesoDato->RealizarConsulta("SELECT * FROM usuario");
             $estado = $consulta->execute();
-            $listaDeUsuarios = $consulta->fetchAll();
-            $listaDeProductos = $consulta->fetchAll(Pdo::FETCH_CLASS,__CLASS__,array('mail','clave','nombre','apellido','localidad'));
+            $listaDeUsuarios = $consulta->fetchAll(Pdo::FETCH_CLASS,__CLASS__,array('mail','clave','nombre','apellido','localidad'));
         }
 
         return  $listaDeUsuarios;

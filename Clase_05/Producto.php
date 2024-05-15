@@ -64,14 +64,6 @@ class Producto
         return  $listaDeProductos;
     }
 
-    // private static $id;
-    // private $codigoDeBarra;
-    // private $nombre;
-    // private $tipo;
-    // private $stock;
-    // private $precio;
-    // private static $fechaDeCreacion;
-    // private static $fechaDeModificacion;
 
     public static function ObtenerUnProductoPorArrayAsosiativo($unArrayAsosiativo)
     {
@@ -125,17 +117,7 @@ class Producto
         return  $unProducto;
     }
 
-    // public function __construct($codigoDeBarra,$nombre,$tipo,$stock,$precio) {
-        
-    //     self::$id = Producto::CrearIdAutoIncremental();
-    //     $this->nombre = $nombre;
-    //     $this->tipo = $tipo;
-    //     $this->stock = $stock;
-    //     $this->precio = $precio;
-    //     $this->codigoDeBarra = $codigoDeBarra;
-    //     self::$fechaDeCreacion = date("Y-m-d");
-    //     self::$fechaDeModificacion = date("Y-m-d");
-    // }
+ 
 
     private function AgragarStock()
     {

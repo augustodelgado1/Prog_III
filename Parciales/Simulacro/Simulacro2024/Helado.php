@@ -21,14 +21,42 @@ class Helado
     private $tipo;
     private $sabor;
     private $vaso;
+    private $nombreDeLaImagen;
+    private $rutaDeLaImagen;
 
-    public function __construct($precio,$stock,$tipo,$sabor,$vaso) {
+    public function __construct($precio,$stock,$tipo,$sabor,$vaso,$imagen = null,$rutaDeLaImagen = null) {
         $this->precio = $precio;
         $this->stock = $stock;
         $this->tipo = $tipo;
         $this->sabor = $sabor;
         $this->vaso = $vaso;
+        Helado::SetImagen($imagen,$rutaDeLaImagen);
         self::$id = Helado::ObtenerIdAutoIncremental();
+    }
+
+    public function SetImagen($ruta,$nombreDelaImagen)
+    {
+        $estado = false;
+        if(isset($ruta) && isset($nombreDelaImagen))
+        {
+            $this->nombreDeLaImagen = $this->sabor.$this->tipo.$nombreDelaImagen;
+            $this->rutaDeLaImagen = $ruta;
+            $estado = true;
+        }
+
+        return $estado;
+    }
+
+    public function MoverImagen($nuevaRuta)
+    {
+        $estado = false;
+        if(File::MoverFoto($this->rutaDeLaImagen,$nuevaRuta,$this->nombreDeLaImagen))
+        {
+            $this->rutaDeLaImagen = $nuevaRuta;
+            $estado = true;
+        }
+
+        return $estado;
     }
 
     public function ActualizarHelado($precio,$stock)
@@ -40,33 +68,6 @@ class Helado
             $this->stock += $stock;
         }
     }
-
-    public static function CrearUnDirectorio($ruta)
-    {
-        $estado = false;
-
-        if(!file_exists($ruta)  )
-        {
-            $estado = mkdir($ruta);
-        }
-
-        return $estado;
-    }
-
-    public function MoverFoto($tmpNombre,$rutaASubir,$nombreDeArchivo)
-    {
-        $estado = false;
-       
-        if(isset($tmpNombre) && isset($rutaASubir))
-        {
-            $rutaDestino = $rutaASubir.$this->sabor.$this->tipo.$nombreDeArchivo;
-            $estado =  move_uploaded_file($tmpNombre,$rutaDestino);
-        }
-
-        return $estado;
-    }
-
-
     private static function ObtenerIdAutoIncremental()
     {
         return rand(1,10000);
@@ -80,8 +81,8 @@ class Helado
         {
             $unHelado = new Helado($unArrayAsosiativo['precio'],
             $unArrayAsosiativo['stock'],$unArrayAsosiativo['tipo'],
-            $unArrayAsosiativo['sabor'],$unArrayAsosiativo['vaso']);
-            var_dump($unHelado);
+            $unArrayAsosiativo['sabor'],$unArrayAsosiativo['vaso'],$unArrayAsosiativo['nombreDeLaImagen'],
+            $unArrayAsosiativo['rutaDeLaImagen']);
         }
         
         return $unHelado;
@@ -122,10 +123,9 @@ class Helado
         return  $listaDeArrayAsosiativos ;
     }
 
-    
-    public static function BuscarHeladoPorSabor($listaDeHelados,$sabor)
+    public static function FitrarHeladosPorSabor($listaDeHelados,$sabor)
     {
-        $unaHeladoABuscar = null; 
+        $listaDeUnSabor = null; 
 
         if(isset($listaDeHelados) )
         {
@@ -133,13 +133,12 @@ class Helado
             {
                 if($unaHelado->sabor == $sabor)
                 {
-                    $unaHeladoABuscar = $unaHelado; 
-                    break;
+                    array_push($unaHelado,$listaDeUnSabor);
                 }
             }
         }
 
-        return  $unaHeladoABuscar;
+        return  $listaDeUnSabor;
     }
 
     
@@ -182,29 +181,10 @@ class Helado
         return $this->vaso;
     }
 
-    
-
-    
-    public static function BuscarHeladoPorTipoYSabor($listaDeHelados,$tipo,$sabor)
+    public function GetSabor()
     {
-        $unaHeladoABuscar = null; 
-
-        if(isset($listaDeHelados))
-        {
-            foreach($listaDeHelados as $unaHelado)
-            {
-                if($unaHelado->sabor == $sabor && $unaHelado->tipo == $tipo)
-                {
-                    $unaHeladoABuscar = $unaHelado; 
-                    break;
-                }
-            }
-        }
-
-        return  $unaHeladoABuscar;
+        return $this->sabor;
     }
-
-   
     public static function LeerListaJson($nombreDeArchivo)
     {
         $unArchivo = fopen($nombreDeArchivo,"r");
@@ -251,6 +231,8 @@ class Helado
             'tipo' => $this->tipo,
             'sabor' => $this->sabor,
             'vaso' => $this->vaso,
+            'nombreDeLaImagen' => $this->nombreDeLaImagen,
+            'rutaDeLaImagen' => $this->rutaDeLaImagen,
             'id' => self::$id,
         );
     }
