@@ -2,96 +2,68 @@
 
 class T
 {
-
-
-
-     //Json
-
-     //Escibir
-  
-
-    //Serializar
-    private static function SerializarListaJson($listaDePizzas)
+    public function AltaConImagen()
     {
-        $listaDeArrayAsosiativos = null; 
-
-        if(isset($listaDePizzas))
-        {
-            $listaDeArrayAsosiativos = [];
-
-            foreach($listaDePizzas as $unaT)
-            {
-                array_push($listaDeArrayAsosiativos,$unaT->ObtenerDatos());
-            }
-        }
-
-        return  $listaDeArrayAsosiativos ;
+        $unHelado = Helado::ObtenerUnHeladoPorArrayAsosiativo($_POST);
+        $unHelado->SetImagen($_FILES['foto']['tmp_name'],$_FILES['foto']['name']);
+        $unHelado->MoverImagen("ImagenesDeHelados/2024/");
+        array_push($listaDeHelado,$unHelado);
+        Helado::EscribirHeladoEnArrayJson($listaDeHelado,'heladeria.json');
     }
 
-    public static function LeerJson($nombreDeArchivo)
+    public function Alta()
     {
-        return Venta::DeserializarListaJson(File::LeerListaJson($nombreDeArchivo,true));
+        $unHelado = Helado::ObtenerUnHeladoPorArrayAsosiativo($_POST);
+        array_push($listaDeHelado,$unHelado);
+        Helado::EscribirHeladoEnArrayJson($listaDeHelado,'heladeria.json');
     }
 
-    ///Deserializar Lista Json
-
-    private static function DeserializarListaJson($listaDeArrayAsosiativos)
-    {
-        $listaDePizza = null; 
-
-        if(isset($listaDeArrayAsosiativos))
-        {
-            $listaDePizza = [];
-
-            foreach($listaDeArrayAsosiativos as $unaArrayAsosiativo)
-            {
-                array_push($listaDePizza,new T($unaArrayAsosiativo['precio'],$unaArrayAsosiativo['stock'],$unaArrayAsosiativo['tipo'],$unaArrayAsosiativo['sabor']));
-            }
-        }
-
-        return  $listaDePizza ;
-    }
-
-
-    ///ObtenerDatos
-    private function ObtenerDatos()
-    {
-        return array(
-            'stock' => $this->stock,
-            'precio' => $this->precio,
-            'tipo' => $this->tipo,
-            'sabor' => $this->sabor,
-            'id' => self::$id,
-        );
-    }
-
-    public static function ObtenerUnaDevolucionPorArrayAsosiativo($unArrayAsosiativo)
-    {
-        $unaDevolucion = null;
-
-        if(isset($unArrayAsosiativo))
-        {
-            $unaDevolucion = new Devolucion($unArrayAsosiativo['causa'],$unArrayAsosiativo['rutaDeLafoto'],$unArrayAsosiativo['imagen']);
-            $unaDevolucion->SetId($unArrayAsosiativo['id']);
-        }
-        
-        return $unaDevolucion;
-    }
-
-    private function SetId($id)
+    //Modify
+    public function Modificar($listaDeVentas,$index)
     {
         $estado = false;
-        if(isset($id))
+
+        if(isset($listaDeVentas)  && $index >= 0)
         {
-            $this->id = $id;
+            $listaDeVentas[$index] = $this;
             $estado = true;
         }
 
-        return  $estado ;
+        return $estado;
+    }
+    public static function Borrar($listaDeVentas,$index)
+    {
+        $estado = false;
+
+        if(isset($listaDeVentas) && $index >= 0)
+        {
+            $listaDeVentas[$index]->ModificarFoto("ImagenesBackupVentas/2024/",$listaDeVentas[$index]->nombreDeLaImagen);
+            array_splice($listaDeVentas,$index,1);
+            $estado = true;
+        }
+
+        return $estado;
     }
 
+    public static function BuscarUnaClasePorId($listaDeClases,$id)
+    {
+        $index = -1;
+        $leght = count($listaDeClases); 
+        if(isset($listaDeClases)  && $leght > 0)
+        {
+            for ($i=0; $i < $leght; $i++) { 
+         
+                if( $listaDeClases[$i]->id == $id)
+                {
+                    $index = $i;
+                    break;
+                }
+            }
+        }
 
-    
+        return $index;
+    }
+
 
     //Add Array
 
@@ -245,32 +217,36 @@ class File
         return $estado;
     }
 
-    //Set Foto
+    //img
 
-    private function SetImagen($ruta,$nombreDelaImagen)
+  
+    public function SetImagen($ruta,$nombreDelaImagen)
     {
         $estado = false;
         if(isset($ruta) && isset($nombreDelaImagen))
         {
-            $this->nombreDeLaImagen = $nombreDelaImagen;
-            $this->rutaDeLafoto = $ruta;
+            $this->nombreDeLaImagen = $this->sabor.$this->tipo.$nombreDelaImagen;
+            $this->rutaDeLaImagen = $ruta;
             $estado = true;
         }
 
         return $estado;
     }
 
-    public function ModificarFoto($nuevaRuta,$nombreDelaImagen)
+    public function MoverImagen($nuevaRuta)
     {
         $estado = false;
-        if(File::MoverFoto($this->rutaDeLafoto,$nuevaRuta,$nombreDelaImagen))
+        if(File::MoverFoto($this->rutaDeLaImagen,$nuevaRuta,$this->nombreDeLaImagen))
         {
-            $this->SetImagen($nuevaRuta,$nombreDelaImagen);
+            $this->rutaDeLaImagen = $nuevaRuta;
             $estado = true;
         }
 
         return $estado;
     }
+
+   
+
     public function recortarHastaCaracter($cadena, $caracter) {
         // Encontrar la posición del primer carácter especificado en la cadena
         $nuevoStr = null;
