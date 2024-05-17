@@ -2,34 +2,36 @@
 
 <?php
 
-require_once 'Clases/File.php';
+require_once 'Clases/Usuario.php';
 class Deposito
 {
     private $id;
     private $unUsuario;
     private $importe; 
-    private $fechaDeRegistro;
+    private $fechaDelDeposito;
     private $rutaDeLaImagen;
     private $nombreDeLaImagen;
 
     
 
-    public function __construct($unUsuario,$importe,$ruta = null,$numeroDeCuentaDeLaImagen = null) {
+    public function __construct($unUsuario,$importe,$ruta = null,$nombreDelaImagen = null) 
+    {
         $this->unUsuario = $unUsuario;
         $this->importe = $importe;
-        $this->fechaDeRegistro = date("Y-m-d");
+        $this->fechaDelDeposito = date("Y-m-d");
         $this->id = Deposito::ObtenerIdAutoIncremental();
+        $this->SetImagen($ruta,$nombreDelaImagen);
     }
 
 //     b- Completar el depósito con imagen del talón de depósito con el nombre: Tipo de
 // Cuenta, Nro. de Cuenta e Id de Depósito, guardando la imagen en la carpeta
 // /ImagenesDeDepositos2023.
-    public function SetImagen($ruta,$nombreDelaImagen)
+    private function SetImagen($ruta,$nombreDelaImagen)
     {
         $estado = false;
         if(isset($ruta) && isset($nombreDelaImagen))
         {
-            $this->nombreDeLaImagen = $this->unUsuario->GetNumeroDeCuenta().$this->unUsuario->GetTipoDeCuenta().$this->id.$nombreDelaImagen;
+            $this->nombreDeLaImagen = $nombreDelaImagen;
             $this->rutaDeLaImagen = $ruta;
             $estado = true;
         }
@@ -37,10 +39,25 @@ class Deposito
         return $estado;
     }
 
-    public function MoverImagen($nuevaRuta)
+    public function GuardarImagen($tmpNombre,$rutaASubir,$nombreDeArchivo)
     {
         $estado = false;
-        if(File::MoverFoto($this->rutaDeLaImagen,$nuevaRuta,$this->nombreDeLaImagen))
+        
+        $nombreAGuardar = $this->unUsuario->GetNumeroDeCuenta().$this->unUsuario->GetTipoDeCuenta().$this->id.$nombreDeArchivo;
+        if(File::MoverArchivoSubido($tmpNombre,$rutaASubir,$nombreAGuardar))
+        {
+            $this->SetImagen($rutaASubir,$nombreAGuardar);
+            $estado = true;
+        }
+
+        return $estado;
+    }
+
+    public function CambiarRutaDeLaImagen($nuevaRuta)
+    {
+        $estado = false;
+
+        if(rename($this->rutaDeLaImagen.$this->nombreDeLaImagen,$nuevaRuta.$this->nombreDeLaImagen))
         {
             $this->rutaDeLaImagen = $nuevaRuta;
             $estado = true;
@@ -105,9 +122,12 @@ class Deposito
     private function ObtenerDatos()
     {
         return array(
-            'numeroDeCuenta' => $this->unUsuario,
             'importe' => $this->importe,
             'id' => $this->id,
+            'fechaDelDeposito' => $this->fechaDelDeposito,
+            'rutaDeLaImagen' => $this->rutaDeLaImagen,
+            'nombreDeLaImagen' => $this->nombreDeLaImagen,
+            'unUsuario' => $this->unUsuario,
         );
     }
    
@@ -136,15 +156,15 @@ class Deposito
     public static function ObtenerUnDepositoPorArrayAsosiativo($unArrayAsosiativo)
     {
         $unDeposito = null;
+        $unUsuario = Usuario::DeserializarUnUsarioJson($unArrayAsosiativo['unUsuario']);
 
-        if(isset($unArrayAsosiativo) && isset($unArrayAsosiativo['mail'])
-        && isset($unArrayAsosiativo['numeroDeCuenta']) && isset($unArrayAsosiativo['clave'])
-        && isset($unArrayAsosiativo['importe']))
+        if(isset($unArrayAsosiativo) && isset($unArrayAsosiativo['importe']) && isset($unUsuario))
         {
-            $unDeposito = new Deposito($unArrayAsosiativo['mail'],
-            $unArrayAsosiativo['clave'],$unArrayAsosiativo['numeroDeCuenta'],
-            $unArrayAsosiativo['importe']);
+            $unDeposito = new Deposito($unUsuario,
+            $unArrayAsosiativo['importe'],
+            $unArrayAsosiativo['rutaDeLaImagen'],$unArrayAsosiativo['nombreDeLaImagen']);
             $unDeposito->SetId( $unArrayAsosiativo['id']);
+            $unDeposito->SetFechaDelDeposito( $unArrayAsosiativo['fechaDelDeposito']);
         }
         
         return $unDeposito;
@@ -156,6 +176,18 @@ class Deposito
         if(isset($id))
         {
             $this->id = $id;
+            $estado = true;
+        }
+
+        return  $estado ;
+    }
+
+    private function SetFechaDelDeposito($fechaDelDeposito)
+    {
+        $estado = false;
+        if(isset($fechaDelDeposito))
+        {
+            $this->fechaDelDeposito = $fechaDelDeposito;
             $estado = true;
         }
 
@@ -202,12 +234,146 @@ class Deposito
         return  $unaDepositoABuscar;
     }
 
+    //             4- ConsultaMovimientos.php: (por GET)
+// Datos a consultar:
+// a- El total depositado (monto) por tipo de cuenta y moneda en un día en
+// particular (se envía por parámetro), si no se pasa fecha, se muestran las del día
+// anterior.
+// b- El listado de depósitos para un usuario en particular.
+// c- El listado de depósitos entre dos fechas ordenado por nombre.
+// d- El listado de depósitos por tipo de cuenta.
+// e- El listado de depósitos por moneda.
+    public static function FiltrarPorUsuario($listaDeDepositos,$numeroDeCuenta)
+    {
+        $listaDeDepositosDeUnUsuario = null;
+
+        if(isset($listaDeDepositos) && isset($numeroDeCuenta) && count($listaDeDepositos) > 0)
+        {
+            $listaDeDepositosDeUnUsuario =  [];
+
+            foreach($listaDeDepositos as $unDeposito)
+            {
+                if($unDeposito->unUsuario->GetNumeroDeCuenta() == $numeroDeCuenta)
+                {
+                    array_push($listaDeDepositosDeUnUsuario,$unDeposito);
+                }
+            }
+        }
+
+        return  $listaDeDepositosDeUnUsuario;
+    }
+// d- El listado de depósitos por tipo de cuenta.
+    public static function FiltrarPorTipoDeUsuario($listaDeDepositos,$tipoDeCuenta)
+    {
+        $listaDeDepositosDeUnTipo = null;
+
+        if(isset($listaDeDepositos) && isset($tipoDeCuenta) && count($listaDeDepositos) > 0)
+        {
+            $listaDeDepositosDeUnTipo =  [];
+
+            foreach($listaDeDepositos as $unDeposito)
+            {
+                if($unDeposito->unUsuario->GetTipoDeCuenta() == $tipoDeCuenta)
+                {
+                    array_push($listaDeDepositosDeUnTipo,$unDeposito);
+                }
+            }
+        }
+
+        return  $listaDeDepositosDeUnTipo;
+    }
+
+    // e- El listado de depósitos por moneda.
+    public static function FiltrarPorTipoDeMoneda($listaDeDepositos,$tipoMoneda)
+    {
+        $listaDeDepositosDeUnaMoneda = null;
+
+        if(isset($listaDeDepositos) && isset($tipoMoneda) && count($listaDeDepositos) > 0)
+        {
+            $listaDeDepositosDeUnaMoneda =  [];
+
+            foreach($listaDeDepositos as $unDeposito)
+            {
+                var_dump($unDeposito->unUsuario->GetTipoMoneda());
+                if($unDeposito->unUsuario->GetTipoMoneda() == $tipoMoneda)
+                {
+                    array_push($listaDeDepositosDeUnaMoneda,$unDeposito);
+                }
+            }
+        }
+
+        return  $listaDeDepositosDeUnaMoneda;
+    }
+
+    public static function FiltrarDesdeUnaFecha($listaDeDepositos,$fechaDesde,$fechaHasta)
+    {
+        $filtrarPorVenta = null;
+
+        if(isset($listaDeDepositos) && isset($fechaDesde) && isset($fechaHasta) && count($listaDeDepositos) > 0)
+        {
+            $filtrarPorVenta =  [];
+        
+            foreach($listaDeDepositos as $unDeposito)
+            {
+                if($unDeposito->fechaDelDeposito >= $fechaDesde && $unDeposito->fechaDelDeposito <= $fechaHasta)
+                {
+                    array_push($filtrarPorVenta,$unDeposito);
+                }
+            }
+        }
+
+        return  $filtrarPorVenta;
+    }
+
+    
+
+
+    public static function FiltrarPorFecha($listaDeDepositos,$fechaDelDeposito)
+    {
+        $listaDeFechaDeDeposito = null;
+
+        if(isset($listaDeDepositos) && isset($fechaDelDeposito) && count($listaDeDepositos) > 0)
+        {
+            $listaDeFechaDeDeposito =  [];
+
+            
+            foreach($listaDeDepositos as $unDeposito)
+            {
+               
+                if($unDeposito->fechaDelDeposito == $fechaDelDeposito)
+                {
+                    array_push($listaDeFechaDeDeposito,$unDeposito);
+                }
+            }
+        }
+
+        return  $listaDeFechaDeDeposito;
+    }
+
+    //Contar
+
+    public static function ObtanerMontoTotalDepositado($listaDeDepositos)
+    {
+        $montoTotal = -1;
+
+        if(isset($listaDeDepositos))
+        {
+            $montoTotal = 0;
+
+            foreach($listaDeDepositos as $unaDeposito)
+            {
+                $montoTotal += $unaDeposito->importe;
+            }
+        }
+
+        return  $montoTotal;
+    }
+
     public function ToString()
     {
-        return "numeroDeCuenta: ".$this->unUsuario.'<br>'
+        return "Usuario: ".'<br>'.$this->unUsuario->ToString().'<br>'
         ."importe: ".$this->importe.'<br>'
-        ."fechaDeRegistro: ".self::$fechaDeRegistro.'<br>' 
-        ."id: ". $this->id;
+        ."fechaDelDeposito: ".$this->fechaDelDeposito.'<br>';
     }
     public static function ToStringList($listaDeDeposito)
     {

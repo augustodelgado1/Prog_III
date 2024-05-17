@@ -25,8 +25,7 @@ require_once 'Clases/Usuario.php';
 $mensaje = "No se recibieron parametros";
 $listaDeUsuario = Usuario::LeerJson("banco.json");
 
-File::CrearUnDirectorio("./imagen") ;
-File::CrearUnDirectorio("./imagen/usuario");
+
 
 if(!isset($listaDeUsuario )  )
 {
@@ -42,20 +41,20 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'
     $unUsuario = Usuario::BuscarUsuarioPorNumeroDeCuenta($listaDeUsuario ,$_POST['numeroDeCuenta']);
 
     if(isset($unUsuario) 
-    && $unUsuario->GetTipoDeCuenta() == $_POST['tipoDeCuenta'] && $unUsuario->ActualizarSaldo($_POST['saldo']))
+    && $unUsuario->GetTipoDeCuenta() == $_POST['tipoDeCuenta'] 
+&& $unUsuario->ActualizarSaldo($_POST['saldo']))
     {
-        Usuario::EscribirUsuarioEnArrayJson($listaDeUsuario,'banco.json');
         $mensaje = "Se actualizo el saldo";
+        $unUsuario->CambiarRutaDeLaImagen("ImagenesDeCuentas/Actualizadas/");
 
     }else{
         $mensaje = "no se pudo dar de alta";
         if(($unUsuario = Usuario::ObtenerUnaUsuarioPorArrayAsosiativo($_POST)) != null)
         {
-            $unUsuario->SetImagen($_FILES['imagen']['tmp_name'],$_FILES['imagen']['name']);
-            $unUsuario->MoverImagen("imagen/usuario/");
+            $unUsuario->GuardarImagen($_FILES['imagen']['tmp_name'],"ImagenesDeCuentas/2023/",$_FILES['imagen']['name']);
             array_push($listaDeUsuario,$unUsuario);
-             Usuario::EscribirUsuarioEnArrayJson($listaDeUsuario,'banco.json');
-             $mensaje = "Se creo el Usuario: <br>".$unUsuario->ToString();;
+            Usuario::EscribirUsuarioEnArrayJson($listaDeUsuario,'banco.json');
+            $mensaje = "Se creo el Usuario: <br>".$unUsuario->ToString();;
         }
     }
     

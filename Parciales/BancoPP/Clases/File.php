@@ -6,7 +6,7 @@
 
 class File
 {
-    public static function MoverFoto($tmpNombre,$rutaASubir,$nombreDeArchivo)
+    public static function MoverArchivoSubido($tmpNombre,$rutaASubir,$nombreDeArchivo)
     {
         $estado = false;
        

@@ -25,7 +25,7 @@ switch ($_SERVER['REQUEST_METHOD'] ) {
             break;
 
             default:
-            $mensaje = "Peticion no permitida";
+            echo  "Peticion no permitida";
             break;
         }
 
@@ -35,12 +35,13 @@ switch ($_SERVER['REQUEST_METHOD'] ) {
     {
         switch($_GET['accion'])
         {
-            case 'carga':
-                require_once "PizzaCarga.php";
+
+            case 'consulta_movimientos':
+                require_once "ConsultaMovimientos.php";
             break;
 
             default:
-            $mensaje = "Peticion no permitida";
+            echo  "Peticion no permitida";
             break;
         }
     }
@@ -53,7 +54,7 @@ switch ($_SERVER['REQUEST_METHOD'] ) {
             break;
 
             default:
-            $mensaje = "Peticion no permitida";
+            echo  "Peticion no permitida";
             break;
         }
     break;
@@ -68,15 +69,14 @@ switch ($_SERVER['REQUEST_METHOD'] ) {
             break;
 
             default:
-            $mensaje = "Peticion no permitida";
+            echo  "Peticion no permitida";
             break;
         }
     break;
     
     default:
-    $mensaje = "Peticion no permitida";
+    echo "Peticion no permitida";
         break;
 }
 
-echo $mensaje;
 ?>

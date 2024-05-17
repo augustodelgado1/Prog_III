@@ -16,7 +16,7 @@
 <?php
 
 require_once 'Clases/File.php';
-class Usuario
+class Usuario implements JsonSerializable
 {
     private $numeroDeCuenta;
     private $nombre;
@@ -70,14 +70,66 @@ class Usuario
     {
         return  $this->saldo;
     }
+    public function GetTipoMoneda()
+    {
+        return  $this->moneda;
+    }
 
-    public function SetImagen($ruta,$nombreDelaImagen)
+    public static function CompararPorNombre($unUsuario,$otroUsuario)
+    {
+        $retorno = 0;
+        $comparacion = strcmp($unUsuario->nombre,$otroUsuario->nombre);
+
+        if( $comparacion  > 0)
+        {
+            $retorno = 1;
+        }else{
+
+            if( $comparacion < 0)
+            {
+                $retorno = -1;
+            }
+        }
+
+        return $retorno ;
+    }
+    
+
+    private function SetImagen($ruta,$nombreDelaImagen)
     {
         $estado = false;
         if(isset($ruta) && isset($nombreDelaImagen))
         {
-            $this->nombreDeLaImagen = $this->numeroDeCuenta.$this->tipoDeCuenta.$nombreDelaImagen;
+            $this->nombreDeLaImagen = $nombreDelaImagen;
             $this->rutaDeLaImagen = $ruta;
+            $estado = true;
+        }
+
+        return $estado;
+    }
+
+    public function GuardarImagen($tmpNombre,$rutaASubir,$nombreDeArchivo)
+    {
+        $estado = false;
+        
+        $nombreAGuardar = $this->numeroDeCuenta.$this->tipoDeCuenta.$nombreDeArchivo;
+      
+        if(File::MoverArchivoSubido($tmpNombre,$rutaASubir,$nombreAGuardar))
+        {
+            $this->SetImagen($rutaASubir,$nombreAGuardar);
+            $estado = true;
+        }
+
+        return $estado;
+    }
+
+    public function CambiarRutaDeLaImagen($nuevaRuta)
+    {
+        $estado = false;
+
+        if(rename($this->rutaDeLaImagen.$this->nombreDeLaImagen,$nuevaRuta.$this->nombreDeLaImagen))
+        {
+            $this->rutaDeLaImagen = $nuevaRuta;
             $estado = true;
         }
 
@@ -89,18 +141,7 @@ class Usuario
         return "moneda: ". $this->moneda. $this->saldo.'<br>';
     }
 
-    public function MoverImagen($nuevaRuta)
-    {
-        $estado = false;
-        if(File::MoverFoto($this->rutaDeLaImagen,$nuevaRuta,$this->nombreDeLaImagen))
-        {
-            $this->rutaDeLaImagen = $nuevaRuta;
-            $estado = true;
-        }
-
-        return $estado;
-    }
-
+  
     private static function ObtenerNumeroDeCuentaAutoIncremental()
     {
         return rand(99999,1000000);
@@ -136,17 +177,7 @@ class Usuario
         return  $listaDeArrayAsosiativos ;
     }
 
-        // private $numeroDeCuenta;
-        // private $nombre;
-        // private $apellido; 
-        // private $clave;
-        // private $mail;
-        // private $numeroDeDocumento;
-        // private $tipoDeCuenta;
-        // private $moneda;
-        // private $saldo;
-        // private $nombreDeLaImagen;
-        // private $rutaDeLaImagen;
+       
   
     public static function LeerJson($nombreDeArchivo)
     {
@@ -164,7 +195,7 @@ class Usuario
          
             foreach($listaDeArrayAsosiativos as $unArrayAsosiativo)
             {
-                $unUsuario = Usuario::ObtenerUnaUsuarioPorArrayAsosiativo($unArrayAsosiativo);
+                $unUsuario = Usuario::DeserializarUnUsarioJson($unArrayAsosiativo);
                 if(isset($unUsuario))
                 {
                     array_push($listaDeUsuarios,$unUsuario);
@@ -192,7 +223,38 @@ class Usuario
             $unArrayAsosiativo["apellido"], $unArrayAsosiativo["numeroDeDocumento"], $unArrayAsosiativo["tipoDeCuenta"], 
             $unArrayAsosiativo["moneda"], $unArrayAsosiativo["rutaDeLaImagen"],$unArrayAsosiativo["nombreDeLaImagen"]);
             $unaUsuario->SetNumeroDeCuenta( $unArrayAsosiativo['numeroDeCuenta']);
+        }
+        
+        return $unaUsuario;
+    }
+
+    public function jsonSerialize()
+    {
+        return array(
+            'nombre' => $this->nombre,
+            'apellido' => $this->apellido,
+            'clave' => $this->clave,
+            'mail' => $this->mail,
+            'numeroDeCuenta' => $this->numeroDeCuenta,
+            'numeroDeDocumento' => $this->numeroDeDocumento,
+            'tipoDeCuenta' => $this->tipoDeCuenta,
+            'moneda' => $this->moneda,
+            'saldo' => $this->saldo,
+            'nombreDeLaImagen' => $this->nombreDeLaImagen,
+            'rutaDeLaImagen' => $this->rutaDeLaImagen,
+        );
+    }
+   
+
+    public static function DeserializarUnUsarioJson($unArrayAsosiativo)
+    {
+        $unaUsuario = null;
+
+        $unaUsuario = Usuario::ObtenerUnaUsuarioPorArrayAsosiativo($unArrayAsosiativo);
+        if(isset( $unaUsuario))
+        {
             $unaUsuario->ActualizarSaldo($unArrayAsosiativo['saldo']);
+       
         }
         
         return $unaUsuario;
@@ -261,9 +323,11 @@ class Usuario
         {
             foreach($listaDeUsuario as $unaUsuario)
             {
+           
                 if($unaUsuario->numeroDeCuenta == $numeroDeCuenta)
                 {
                     $unaUsuarioABuscar = $unaUsuario; 
+               
                     break;
                 }
             }

@@ -23,24 +23,28 @@ require_once 'Clases/Deposito.php';
 require_once 'Clases/Usuario.php';
 $mensaje = "No se recibieron parametros";
 $listaDeUsuario = Usuario::LeerJson("banco.json");
+$listaDeDeposito = Deposito::LeerJson(' depositos.json');
+FIle::CrearUnDirectorio('ImagenesDeDepositos2023');
+
+var_dump($listaDeDeposito);
 
 if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['tipoDeCuenta']) && isset($_POST['numeroDeCuenta']) )
 {
     $mensaje = "no existe la cuenta";
-   $unUsuario =  Usuario::BuscarUsuarioPorNumeroDeCuenta($listaDeUsuario ,$_POST['numeroDeCuenta']);
-   $unDeposito;
 
-   $mensaje = "no se realizar el Deposito";
-    if(isset($unUsuario) && ($unDeposito = Deposito::ObtenerUnDepositoPorArrayAsosiativo($_POST)) != null)
+   $unUsuario =  Usuario::BuscarUsuarioPorNumeroDeCuenta($listaDeUsuario ,$_POST['numeroDeCuenta']);
+    if(isset($unUsuario) && $unUsuario->GetTipoDeCuenta() == $_POST['tipoDeCuenta']
+    && isset($_POST['importe']))
     {
-        $unDeposito->SetImagen($_FILES['imagen']['tmp_name'],$_FILES['imagen']['name']);
-        $unDeposito->MoverImagen("ImagenesDeDepositos2023/");
+        $unDeposito =  new Deposito($unUsuario,$_POST['importe']);
+        $unDeposito->GuardarImagen($_FILES['imagen']['tmp_name'],"ImagenesDeDepositos2023/",$_FILES['imagen']['name']);
+        $unDeposito->ActualizarImporte($_POST['importe']);
         array_push($listaDeDeposito,$unDeposito);
-        Deposito::EscribirDepositoEnArrayJson($listaDeDeposito,' depositos.json');
+        Deposito::EscribirDepositoEnArrayJson($listaDeDeposito,'depositos.json');
         $mensaje = "Se realizo el Deposito: <br>".$unDeposito->ToString();;
     }
 }
 
-echo $mensaje ;
+echo $mensaje;
 
 ?>
